@@ -248,17 +248,15 @@ const Feed = () => {
           </div>
 
           <div>
-            <Link href={`/singlepage/${post._id}`}>
-              {post.imgURL && (
-                <img
-                  className="rounded-lg max-h-96 w-full object-cover cursor-pointer"
-                  src={post.imgURL}
-                  alt="Post"
-                />
-              )}
-            </Link>
+            {post.imgURL && (
+              <img
+                className="rounded-lg max-h-96 w-full object-cover cursor-pointer"
+                src={post.imgURL}
+                alt="Post"
+              />
+            )}
           </div>
-          <div className="mt-3 gap-3 flex-col flex">
+          <div className="mt-3 gap-3 flex-col flex overflow-auto break-words w-[47rem]">
             <p className="font-semibold text-xl">{post.title} :</p>
             <p className="font-normal  break-words">{post.content}</p>
           </div>

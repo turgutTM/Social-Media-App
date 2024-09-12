@@ -13,7 +13,7 @@ const AllPosts = () => {
           const posts = await response.json();
           setPosts(posts);
         } else {
-          console.error("Failed to fetch posts");   
+          console.error("Failed to fetch posts");
         }
       } catch (error) {
         console.error("Error fetching posts:", error);
