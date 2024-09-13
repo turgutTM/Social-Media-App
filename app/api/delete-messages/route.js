@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import connect from "../../../db";
 import Message from "../../../models/Message";
+import connect from "../../../db";
 
 export const DELETE = async (req) => {
   try {
     await connect();
 
-    const { messageIds, userId, isSender } = await req.json();
+    const { messageIds, userId } = await req.json();
 
     if (!Array.isArray(messageIds) || messageIds.length === 0) {
       return new NextResponse(
@@ -15,13 +15,9 @@ export const DELETE = async (req) => {
       );
     }
 
-    const updateField = isSender
-      ? { senderDeleted: true }
-      : { receiverDeleted: true };
-
     const result = await Message.updateMany(
-      { _id: { $in: messageIds }, [isSender ? "sender" : "receiver"]: userId },
-      { $set: updateField }
+      { _id: { $in: messageIds } },
+      { $addToSet: { deletedBy: userId } }
     );
 
     if (result.matchedCount === 0) {

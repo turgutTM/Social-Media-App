@@ -5,7 +5,8 @@ import { LuVideo } from "react-icons/lu";
 import { PiDotsThreeOutlineFill } from "react-icons/pi";
 import { useSelector } from "react-redux";
 import io from "socket.io-client";
-const socket = io("http://localhost:3000");
+
+const socket = io();
 
 const Chatconv = ({
   selectedProfileId,
@@ -52,7 +53,7 @@ const Chatconv = ({
         if (response.ok) {
           const data = await response.json();
           const filteredMessages = data.filter(
-            (msg) => !(msg.sender._id === user._id && msg.senderDeleted)
+            (msg) => !(msg.deletedBy && msg.deletedBy.includes(user._id))
           );
           setMessages(filteredMessages);
 
@@ -117,9 +118,11 @@ const Chatconv = ({
             content: message,
             timestamp,
           };
-          socket.emit("send_message", newMessage);
+          setMessages((prev) => [...prev, newMessage]);
 
           setLastMessageTime(formattedTimestamp);
+
+          socket.emit("send_message", newMessage);
         } else {
           console.error("Failed to send message");
         }
@@ -143,13 +146,14 @@ const Chatconv = ({
         body: JSON.stringify({
           messageIds,
           userId: user._id,
-          isSender: true,
         }),
       });
 
       if (response.ok) {
-        setMessages([]);
-        console.log("Messages deleted");
+        setMessages((prev) =>
+          prev.filter((msg) => !messageIds.includes(msg._id))
+        );
+        console.log("Messages marked as deleted");
       } else {
         console.error("Failed to delete messages");
       }
@@ -181,7 +185,7 @@ const Chatconv = ({
       ) : (
         <>
           <div>
-            <div className="flex items-center p-2 border-b-[1px] w-full gap-3 relative">
+            <div className="flex items-center p-2 border-b-[1px] w-full gap-3 mt-1 relative">
               <div className="w-16">
                 <img
                   className="w-full rounded-full"
@@ -219,7 +223,7 @@ const Chatconv = ({
                 </div>
               )}
             </div>
-            <div className="p-4 flex flex-col gap-3 h-[28rem] overflow-y-auto scrollbar-hide">
+            <div className="p-4 flex flex-col gap-3 h-[28.3rem] overflow-y-auto scrollbar-hide">
               {messages.length > 0 ? (
                 messages.map((msg, index) => (
                   <div
@@ -231,11 +235,11 @@ const Chatconv = ({
                     }`}
                   >
                     <div
-                      className={`w-fit p-3 rounded-2xl text-white ${
+                      className={`max-w-[38rem] p-3 rounded-2xl text-white ${
                         msg.sender._id === user._id
                           ? "bg-[#4b4b4b]"
                           : "bg-blue-500"
-                      }`}
+                      } overflow-auto break-words`}
                     >
                       <p>{msg.content}</p>
                       <p className="text-xs text-gray-300 text-right mt-1">

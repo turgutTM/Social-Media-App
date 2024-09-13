@@ -299,10 +299,13 @@ const Navbar = () => {
           onClick={handleToggleChat}
           className="cursor-pointer"
         />
-        <RiNotification2Line
-          onClick={toggleDropNotification}
-          className="cursor-pointer"
-        />
+        <div>
+          <RiNotification2Line
+            onClick={toggleDropNotification}
+            className="cursor-pointer"
+          />
+        </div>
+
         {dropdownNotification && (
           <div
             ref={dropdownRef}
