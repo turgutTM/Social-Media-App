@@ -345,7 +345,7 @@ const Feed = () => {
                     handleCommentChange(post._id, e.target.value)
                   }
                   placeholder="Write a comment..."
-                  className={`w-full p-2 rounded-lg ${
+                  className={`w-full p-2 focus:outline-none rounded-lg ${
                     isDarkMode
                       ? "bg-gray-800 text-white"
                       : "bg-gray-100 text-black"

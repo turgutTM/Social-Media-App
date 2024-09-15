@@ -189,6 +189,8 @@ const Navbar = () => {
     setChatOpen(!chatOpen);
   };
 
+  const totalNotifications = likedPosts.length + friendRequests.length;
+
   return (
     <div
       className={`fixed top-0 left-0 right-0 z-40 flex items-center p-4 ${
@@ -302,8 +304,15 @@ const Navbar = () => {
         <div>
           <RiNotification2Line
             onClick={toggleDropNotification}
-            className="cursor-pointer"
+            className="cursor-pointer flex"
           />
+          {totalNotifications > 0 && (
+            <span
+              className={`absolute top-2 ml-2 right-42  w-2 h-2 text-xs font-bold text-white bg-red-600 rounded-full flex items-center justify-center`}
+            >
+              
+            </span>
+          )}
         </div>
 
         {dropdownNotification && (
