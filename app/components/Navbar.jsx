@@ -36,6 +36,15 @@ const Navbar = () => {
 
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
+  const notificationRef = useRef(null);
+
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode !== null) {
+      const isDarkModeEnabled = JSON.parse(savedDarkMode);
+      dispatch(setDarkMode(isDarkModeEnabled));
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -56,75 +65,24 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const fetchFollowRequests = async () => {
-      try {
-        const response = await axios.get(`/api/all-friend-request/${user._id}`);
-        setFollowRequests(response.data.friendRequests);
-      } catch (error) {
-        console.error("Failed to fetch follow requests:", error);
-      }
-    };
-
-    if (user._id) {
-      fetchFollowRequests();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const fetchLikedPosts = async () => {
-      try {
-        const response = await axios.get(`/api/all-liked-users/${user._id}`);
-        if (response.status === 200) {
-          setLikedPosts(response.data.users);
-        } else {
-          console.error("Failed to fetch liked posts");
-        }
-      } catch (error) {
-        console.error("Error fetching liked posts:", error);
-      }
-    };
-
-    if (user._id) {
-      fetchLikedPosts();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const fetchFriendRequests = async () => {
-      try {
-        const response = await axios.get(`/api/all-friend-request/${user._id}`);
-        setFriendRequests(response.data.friendRequests);
-      } catch (error) {
-        console.error("Failed to fetch friend requests:", error);
-      }
-    };
-
-    if (user._id) {
-      fetchFriendRequests();
-    }
-  }, [user]);
-
-  useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target) &&
-        searchRef.current &&
-        !searchRef.current.contains(event.target)
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
       ) {
         setDropdownNotification(false);
-        setDropdownSearch(false);
+      }
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setDropdownSearch(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDarkMode);
-  }, [isDarkMode]);
 
   const handleLogout = async () => {
     try {
@@ -148,7 +106,8 @@ const Navbar = () => {
   };
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-  const toggleDropNotification = () => {
+  const toggleDropNotification = (e) => {
+    e.stopPropagation();
     setDropdownNotification((prev) => !prev);
   };
 
@@ -167,19 +126,25 @@ const Navbar = () => {
     );
   });
 
-  const handleToggleDarkMode = async () => {
-    dispatch(toggleDarkMode());
+  const handleToggleDarkMode = () => {
+    const newDarkModeState = !isDarkMode;
+    dispatch(toggleDarkMode(newDarkModeState));
+
+    localStorage.setItem("darkMode", JSON.stringify(newDarkModeState));
+
     try {
-      const response = await axios.post("/api/isdark", {
+      const response = axios.post("/api/isdark", {
         userId: user._id,
-        isDark: !isDarkMode,
+        isDark: newDarkModeState,
       });
 
-      if (response.status === 200) {
-        console.log("Dark mode updated successfully in the database.");
-      } else {
-        console.error("Failed to update dark mode in the database.");
-      }
+      response.then((res) => {
+        if (res.status === 200) {
+          console.log("Dark mode updated successfully in the database.");
+        } else {
+          console.error("Failed to update dark mode in the database.");
+        }
+      });
     } catch (error) {
       console.error("Error toggling dark mode:", error);
     }
@@ -193,12 +158,14 @@ const Navbar = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-40 flex items-center p-4 ${
+      className={`fixed top-0 left-0 right-0 z-40 flex items-center p-3 ${
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
       }`}
     >
       <div className="flex ml-48 text-3xl font-bold text-blue-500">
-        <Link href="/">TUGU</Link>
+        <Link href="/">
+          <img className="w-14" src="/imageTugu.png"></img>
+        </Link>
       </div>
       <div className="flex gap-6 ml-32">
         <Link href="/">

@@ -32,24 +32,24 @@ export const POST = async (request) => {
       createdAt: new Date(),
     };
 
-   
     const updatedPost = await Post.findByIdAndUpdate(
       postID,
       { $push: { comments: newComment } },
-      { new: true } 
+      { new: true }
     );
 
     if (!updatedPost) {
-      return new NextResponse(
-        JSON.stringify({ message: "Invalid post ID" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ message: "Invalid post ID" }), {
+        status: 404,
+      });
     }
+
+    const addedComment = updatedPost.comments[updatedPost.comments.length - 1];
 
     return new NextResponse(
       JSON.stringify({
         message: "Comment added successfully",
-        comments: updatedPost.comments,
+        comment: addedComment,
       }),
       { status: 200 }
     );

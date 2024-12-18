@@ -114,9 +114,13 @@ const Feed = () => {
       toast.error("Failed to delete post");
     }
   };
-
   const handleSendComment = async (e, postID) => {
     e.preventDefault();
+    const commentText = comments[postID].trim();
+    if (!commentText) {
+      toast.error("Comment cannot be empty!");
+      return;
+    }
     try {
       const response = await fetch("/api/add-comment", {
         method: "POST",
@@ -126,49 +130,64 @@ const Feed = () => {
         body: JSON.stringify({
           postID,
           userID: user._id,
-          comment: comments[postID],
+          comment: commentText,
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
+
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
             post._id === postID
-              ? { ...post, comments: [...post.comments, result.newComment] }
+              ? {
+                  ...post,
+                  comments: [
+                    ...post.comments,
+                    {
+                      name: user.name,
+                      profilePhoto: user.profilePhoto,
+                      comment: result.comment.comment,
+                    },
+                  ],
+                }
               : post
           )
         );
-
         setComments((prevComments) => ({
           ...prevComments,
           [postID]: "",
         }));
+
+        toast.success("Comment added successfully!");
       } else {
         console.error("Failed to add comment");
+        toast.error("Failed to add comment.");
       }
     } catch (error) {
       console.error("Error adding comment:", error);
+      toast.error("An error occurred while adding comment.");
     }
   };
 
   const handleViewComments = async (postID) => {
-    setActiveCommentsPostID((prevID) => (prevID === postID ? null : postID));
-
-    try {
-      const response = await fetch(`/api/comments/${postID}`);
-      if (response.ok) {
-        const commentsData = await response.json();
-        setPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post._id === postID ? { ...post, comments: commentsData } : post
-          )
-        );
-      } else {
-        console.error("Failed to fetch comments");
+    if (activeCommentsPostID !== postID) {
+      setActiveCommentsPostID(postID);
+      try {
+        const response = await fetch(`/api/comments/${postID}`);
+        if (response.ok) {
+          const commentsData = await response.json();
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post._id === postID ? { ...post, comments: commentsData } : post
+            )
+          );
+        } else {
+          console.error("Failed to fetch comments");
+        }
+      } catch (error) {
+        console.error("Error fetching comments:", error);
       }
-    } catch (error) {
-      console.error("Error fetching comments:", error);
     }
   };
 
@@ -331,11 +350,10 @@ const Feed = () => {
                       <div>
                         {post.userID && user._id && (
                           <span className="font-medium">
-                            {comment.name}{" "}
-                            {post.userID?.toString() ===
-                              user._id && (
-                              <span className="text-[11px] text-red-500">
-                                • Author
+                            {comment?.name}{" "}
+                            {post.userID?.toString() === user._id && (
+                              <span className="text-sm text-gray-500">
+                                (Author)
                               </span>
                             )}
                           </span>
