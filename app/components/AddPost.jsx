@@ -116,7 +116,7 @@ const AddPost = () => {
                 isDarkMode
                   ? "bg-gray-700 placeholder:text-white"
                   : "bg-gray-100"
-              } p-2 border rounded-md focus:border-transparent focus:ring-0 outline-none w-full h-3/5 mb-4`}
+              } p-2 border rounded-md focus:border-transparent focus:ring-0 outline-none w-full h-[20rem] mb-4`}
               placeholder="What's on your mind"
               value={postContent}
               onChange={(e) => setPostContent(e.target.value)}

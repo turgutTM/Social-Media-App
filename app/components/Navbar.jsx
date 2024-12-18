@@ -309,9 +309,7 @@ const Navbar = () => {
           {totalNotifications > 0 && (
             <span
               className={`absolute top-2 ml-2 right-42  w-2 h-2 text-xs font-bold text-white bg-red-600 rounded-full flex items-center justify-center`}
-            >
-              
-            </span>
+            ></span>
           )}
         </div>
 

@@ -65,8 +65,8 @@ const Register = () => {
               <div className="font-thin">Sign up to continue access</div>
             </div>
             <div className="mt-4">
-              <Link href="https://github.com/">
-                <p className="text-blue-400">github.com</p>
+              <Link href="https://github.com/turgutTM" target="_blank">
+                <p className="text-blue-400">github.com/turgutTM</p>
               </Link>
             </div>
           </div>

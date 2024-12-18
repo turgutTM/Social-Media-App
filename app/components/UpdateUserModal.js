@@ -106,7 +106,7 @@ const UpdateUserModal = ({ closeModal }) => {
               />
             </div>
           </div>
-          {/* User Information Fields */}
+
           <div className="flex flex-col gap-4 mb-4">
             {[
               { label: "Name", name: "name" },

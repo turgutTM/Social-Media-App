@@ -134,9 +134,12 @@ const Feed = () => {
         const result = await response.json();
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
-            post._id === postID ? { ...post, comments: result.comments } : post
+            post._id === postID
+              ? { ...post, comments: [...post.comments, result.newComment] }
+              : post
           )
         );
+
         setComments((prevComments) => ({
           ...prevComments,
           [postID]: "",
@@ -311,7 +314,7 @@ const Feed = () => {
             <div className="mt-4 flex flex-col gap-3">
               <div
                 className={`mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin ${
-                  post.comments.length > 3 ? "max-h-40" : ""
+                  post.comments.length > 3 ? "max-h-60" : ""
                 }`}
               >
                 {post.comments &&
@@ -319,25 +322,43 @@ const Feed = () => {
                     <div key={index} className="flex items-center gap-2 mb-1">
                       <img
                         src={
-                          comment.userProfilePhoto ||
+                          user.profilePhoto ||
                           "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                         }
                         alt="Profile"
                         className="w-8 h-8 rounded-full"
                       />
                       <div>
-                        <span className="font-medium">
-                          {comment.userID.name}
-                        </span>
+                        {post.userID && user._id && (
+                          <span className="font-medium">
+                            {comment.name}{" "}
+                            {post.userID?.toString() ===
+                              user._id && (
+                              <span className="text-[11px] text-red-500">
+                                • Author
+                              </span>
+                            )}
+                          </span>
+                        )}
                         <p className="text-sm">{comment.comment}</p>
                       </div>
                     </div>
                   ))}
               </div>
+
               <form
                 onSubmit={(e) => handleSendComment(e, post._id)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-4"
               >
+                <img
+                  src={
+                    user.profilePhoto ||
+                    "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                  }
+                  alt="User Profile"
+                  className="w-10 h-10 rounded-full"
+                />
+
                 <input
                   type="text"
                   value={comments[post._id] || ""}
@@ -345,7 +366,7 @@ const Feed = () => {
                     handleCommentChange(post._id, e.target.value)
                   }
                   placeholder="Write a comment..."
-                  className={`w-full p-2 focus:outline-none rounded-lg ${
+                  className={`flex-1 p-2 focus:outline-none rounded-lg ${
                     isDarkMode
                       ? "bg-gray-800 text-white"
                       : "bg-gray-100 text-black"
@@ -354,9 +375,9 @@ const Feed = () => {
 
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white p-2 rounded-lg"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                 >
-                  Post
+                  Send
                 </button>
               </form>
             </div>

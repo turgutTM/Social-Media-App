@@ -3,7 +3,7 @@ import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
-const auth = (req) => ({ id: "userid" }); 
+const auth = (req) => ({ id: "userID" }); 
 
 
 export const ourFileRouter = {

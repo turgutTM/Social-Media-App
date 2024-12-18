@@ -19,40 +19,37 @@ export const POST = async (request) => {
     const user = await User.findById(userID);
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ message: "Invalid user ID" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ message: "Invalid user ID" }), {
+        status: 404,
+      });
     }
 
-    const post = await Post.findById(postID);
+    const newComment = {
+      userID: user._id,
+      name: user.name,
+      profilePhoto: user.profilePhoto || "default-profile-photo-url.jpg",
+      comment,
+      createdAt: new Date(),
+    };
 
-    if (!post) {
+   
+    const updatedPost = await Post.findByIdAndUpdate(
+      postID,
+      { $push: { comments: newComment } },
+      { new: true } 
+    );
+
+    if (!updatedPost) {
       return new NextResponse(
         JSON.stringify({ message: "Invalid post ID" }),
         { status: 404 }
       );
     }
 
-    if (!Array.isArray(post.comments)) {
-      post.comments = [];
-    }
-
-    const newComment = {
-      userID: user._id,
-      comment,
-      createdAt: new Date(),
-    };
-
-    post.comments.push(newComment);
-
-    await post.save();
-
-    
     return new NextResponse(
       JSON.stringify({
         message: "Comment added successfully",
-        comments: post.comments,
+        comments: updatedPost.comments,
       }),
       { status: 200 }
     );

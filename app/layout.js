@@ -15,7 +15,9 @@ const LayoutWrapper = ({ children }) => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
 
   const shouldHideNavbar =
-    pathname === "/login" || pathname === "/register";
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/verify-email";
 
   return (
     <div
