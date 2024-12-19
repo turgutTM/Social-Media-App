@@ -14,6 +14,7 @@ import { CiLock } from "react-icons/ci";
 import { ClipLoader } from "react-spinners";
 
 const ProfilePageFeed = ({ userId }) => {
+  const isDarkMode = useSelector((state) => state.user.darkMode);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState(null);
 
@@ -156,6 +157,11 @@ const ProfilePageFeed = ({ userId }) => {
 
   const handleSendComment = async (e, postID) => {
     e.preventDefault();
+    const commentText = comments[postID].trim();
+    if (!commentText) {
+      toast.error("Comment cannot be empty!");
+      return;
+    }
     try {
       const response = await fetch("/api/add-comment", {
         method: "POST",
@@ -164,53 +170,67 @@ const ProfilePageFeed = ({ userId }) => {
         },
         body: JSON.stringify({
           postID,
-          userID: userId,
-          comment: comments[postID],
+          userID: user._id,
+          comment: commentText,
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
+
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
-            post._id === postID ? { ...post, comments: result.comments } : post
+            post._id === postID
+              ? {
+                  ...post,
+                  comments: [
+                    ...post.comments,
+                    {
+                      name: result.comment.name,
+                      profilePhoto: result.comment.profilePhoto,
+                      comment: result.comment.comment,
+                    },
+                  ],
+                }
+              : post
           )
         );
         setComments((prevComments) => ({
           ...prevComments,
           [postID]: "",
         }));
+
+        toast.success("Comment added successfully!");
       } else {
         console.error("Failed to add comment");
+        toast.error("Failed to add comment.");
       }
     } catch (error) {
       console.error("Error adding comment:", error);
+      toast.error("An error occurred while adding comment.");
     }
-  };
-  const toggleModal = (postID) => {
-    setOpenModal((prevID) => (prevID === postID ? null : postID));
-  };
-  const handleUpdatePost = (postID) => {
-    setOpenUpdateModal(postID);
   };
 
   const handleViewComments = async (postID) => {
-    setActiveCommentsPostID((prevID) => (prevID === postID ? null : postID));
-
-    try {
-      const response = await fetch(`/api/comments/${postID}`);
-      if (response.ok) {
-        const commentsData = await response.json();
-        setPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post._id === postID ? { ...post, comments: commentsData } : post
-          )
-        );
-      } else {
-        console.error("Failed to fetch comments");
+    if (activeCommentsPostID === postID) {
+      setActiveCommentsPostID(null);
+    } else {
+      setActiveCommentsPostID(postID);
+      try {
+        const response = await fetch(`/api/comments/${postID}`);
+        if (response.ok) {
+          const commentsData = await response.json();
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post._id === postID ? { ...post, comments: commentsData } : post
+            )
+          );
+        } else {
+          console.error("Failed to fetch comments");
+        }
+      } catch (error) {
+        console.error("Error fetching comments:", error);
       }
-    } catch (error) {
-      console.error("Error fetching comments:", error);
     }
   };
 
@@ -334,14 +354,23 @@ const ProfilePageFeed = ({ userId }) => {
               <div
                 className={`mt-4 flex flex-col gap-4 ${
                   post.comments.length > 3
-                    ? "max-h-48 overflow-y-auto scrollbar-thin"
+                    ? "max-h-72 overflow-y-auto scrollbar-thin"
                     : ""
                 }`}
               >
                 <form
-                  className="flex gap-4"
                   onSubmit={(e) => handleSendComment(e, post._id)}
+                  className="flex items-center gap-4"
                 >
+                  <img
+                    src={
+                      user.profilePhoto ||
+                      "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                    }
+                    alt="User Profile"
+                    className="w-10 h-10 rounded-full"
+                  />
+
                   <input
                     type="text"
                     value={comments[post._id] || ""}
@@ -349,34 +378,35 @@ const ProfilePageFeed = ({ userId }) => {
                       handleCommentChange(post._id, e.target.value)
                     }
                     placeholder="Write a comment..."
-                    className={`p-2 w-full rounded-md ${
-                      darkMode ? "bg-gray-900 text-white" : "bg-gray-100"
+                    className={`flex-1 p-2 focus:outline-none rounded-lg ${
+                      isDarkMode
+                        ? "bg-gray-800 text-white"
+                        : "bg-gray-100 text-black"
                     }`}
                   />
+
                   <button
                     type="submit"
-                    className={`p-2 px-4 rounded-md ${
-                      darkMode ? "bg-blue-500 text-white" : "bg-blue-100"
-                    }`}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                   >
-                    Post
+                    Send
                   </button>
                 </form>
                 {post.comments.map((comment) => (
                   <div
                     key={comment._id}
-                    className="flex items-center gap-4 border-gray-300 py-2"
+                    className="flex items-center gap-3 border-gray-300 py-2"
                   >
                     <img
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-9 h-9 rounded-full object-cover"
                       src={
-                        comment.userID.profilePhoto ||
+                        comment.profilePhoto ||
                         "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                       }
                       alt="Commenter"
                     />
                     <div className="flex flex-col">
-                      <p className="font-medium">{comment.userID.name}</p>
+                      <p className="font-medium text-[14px]">{comment.name}</p>
                       <p className="text-sm">{comment.comment}</p>
                     </div>
                   </div>

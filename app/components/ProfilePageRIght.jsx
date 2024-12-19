@@ -345,15 +345,28 @@ const ProfilePageRight = ({ userId }) => {
             </div>
             {isLoggedUser && (
               <div className="flex items-center justify-between">
-                <span>Private Account</span>
-                <input
-                  type="checkbox"
-                  checked={isPrivate}
-                  onChange={handlePrivateToggle}
-                  className="w-3 h-3 text-blue-600 bg-gray-200 rounded focus:ring-blue-500"
-                />
+                <span className="font-medium text-gray-700">
+                  Private Account{" "}
+                  <span className="text-xs">
+                    {isPrivate
+                      ? "(nobody will see your account except your friends)"
+                      : "(everybody can see your profile)"}
+                  </span>
+                </span>
+
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isPrivate}
+                    onChange={handlePrivateToggle}
+                    className="sr-only peer"
+                  />
+                  <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-300 peer-checked:bg-blue-600 transition-colors duration-300"></div>
+                  <div className="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-300 transform peer-checked:translate-x-5"></div>
+                </label>
               </div>
             )}
+
             {!isLoggedUser && (
               <>
                 <div className="flex justify-center">

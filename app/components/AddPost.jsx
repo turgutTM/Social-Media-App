@@ -66,13 +66,13 @@ const AddPost = () => {
 
   return (
     <div
-      className={` ${
-        isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-      } rounded-md shadow-lg`}
+      className={`${
+        isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+      } rounded-md shadow-lg p-5 transition-colors duration-300`}
     >
-      <div className="flex p-5 items-center gap-3">
+      <div className="flex items-center gap-3">
         <img
-          className="w-16 h-16 object-cover rounded-full"
+          className="w-12 h-12 object-cover rounded-full"
           src={
             user.profilePhoto ||
             "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
@@ -81,8 +81,10 @@ const AddPost = () => {
         />
         <textarea
           className={`${
-            isDarkMode ? "bg-gray-800 placeholder:text-white" : "bg-gray-100"
-          } p-2 border rounded-md focus:border-transparent focus:ring-0 outline-none w-full h-20`}
+            isDarkMode
+              ? "bg-gray-700 placeholder:text-gray-300"
+              : "bg-gray-100 placeholder:text-gray-500"
+          } p-3 border border-transparent rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none w-full h-12 resize-none cursor-pointer transition-colors duration-300`}
           placeholder="What's on your mind..."
           value={postContent}
           onClick={() => setShowModal(true)}
@@ -94,19 +96,25 @@ const AddPost = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div
             className={`${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-            } h-5/6 rounded-md shadow-lg p-7 w-2/3 relative z-60 overflow-y-auto`}
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            } relative z-60 rounded-lg shadow-2xl p-8 w-full max-w-2xl mx-4 overflow-y-auto max-h-[90vh] transition-colors duration-300`}
           >
-            <h2 className="text-xl mb-4">Create Post</h2>
-            {error && <p className="text-red-500">{error}</p>}
+            <h2 className="text-2xl font-semibold mb-4 border-b pb-2">
+              Create Post
+            </h2>
+            {error && (
+              <p className="text-red-500 mb-4 bg-red-50 dark:bg-red-900 p-2 rounded-md">
+                {error}
+              </p>
+            )}
             <input
               maxLength="50"
               className={`${
                 isDarkMode
-                  ? "bg-gray-700 placeholder:text-white"
-                  : "bg-gray-100"
-              } p-2 border rounded-md focus:border-transparent focus:ring-0 outline-none w-full mb-4`}
-              placeholder="Title ( 50 characters )"
+                  ? "bg-gray-700 placeholder:text-gray-300 text-white"
+                  : "bg-gray-100 placeholder:text-gray-500 text-black"
+              } p-3 border border-transparent rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none w-full mb-4 transition-colors duration-300`}
+              placeholder="Title (up to 50 characters)"
               value={postTitle}
               onChange={(e) => setPostTitle(e.target.value)}
             />
@@ -114,50 +122,60 @@ const AddPost = () => {
               maxLength="500"
               className={`${
                 isDarkMode
-                  ? "bg-gray-700 placeholder:text-white"
-                  : "bg-gray-100"
-              } p-2 border rounded-md focus:border-transparent focus:ring-0 outline-none w-full h-[20rem] mb-4`}
-              placeholder="What's on your mind"
+                  ? "bg-gray-700 placeholder:text-gray-300 text-white"
+                  : "bg-gray-100 placeholder:text-gray-500 text-black"
+              } p-3 border border-transparent rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none w-full h-64 mb-4 resize-none transition-colors duration-300`}
+              placeholder="What's on your mind..."
               value={postContent}
               onChange={(e) => setPostContent(e.target.value)}
             ></textarea>
-            <div className="flex gap-3 mb-4">
-              <div className="flex items-center gap-1">
+            <div className="flex gap-4 mb-6">
+              <div className="flex items-center gap-2 cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors duration-300">
                 <UploadButton
                   endpoint="imageUploader"
-                  
+                  className="my-custom-upload-button"
                   onClientUploadComplete={(res) => {
                     if (res && res.length > 0) {
                       setImgURL(res[0].url);
                     }
                   }}
                 >
-                  <MdOutlineInsertPhoto /> <p>Photo</p>
+                  <div className="flex items-center gap-1">
+                    <MdOutlineInsertPhoto className="text-blue-500" />
+                    <p>Photo</p>
+                  </div>
                 </UploadButton>
               </div>
-              <div className="flex items-center gap-1">
-                <FaRegFileVideo />
+              <div className="flex items-center gap-2 cursor-not-allowed opacity-50 p-2 rounded-md">
+                <FaRegFileVideo className="text-green-500" />
                 <p>Video</p>
               </div>
-              <div className="flex items-center gap-1">
-                <CgPoll />
+              <div className="flex items-center gap-2 cursor-not-allowed opacity-50 p-2 rounded-md">
+                <CgPoll className="text-orange-500" />
                 <p>Poll</p>
               </div>
-              <div className="flex items-center gap-1">
-                <MdEventNote />
+              <div className="flex items-center gap-2 cursor-not-allowed opacity-50 p-2 rounded-md">
+                <MdEventNote className="text-purple-500" />
                 <p>Event</p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex justify-end gap-3">
               <button
-                className="bg-blue-600 hover:bg-blue-500 w-24 duration-300 p-2 rounded-md text-white"
+                className="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-md text-white font-medium transition-colors duration-300"
                 onClick={handlePostSubmit}
               >
                 Share
               </button>
               <button
-                className="bg-gray-600 hover:bg-gray-500 w-24 duration-300 p-2 rounded-md text-white"
-                onClick={() => setShowModal(false)}
+                className={`${
+                  isDarkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-300 hover:bg-gray-200 text-black"
+                } px-5 py-2 rounded-md font-medium transition-colors duration-300`}
+                onClick={() => {
+                  setShowModal(false);
+                  setError("");
+                }}
               >
                 Cancel
               </button>

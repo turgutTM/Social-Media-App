@@ -171,7 +171,9 @@ const Feed = () => {
   };
 
   const handleViewComments = async (postID) => {
-    if (activeCommentsPostID !== postID) {
+    if (activeCommentsPostID === postID) {
+      setActiveCommentsPostID(null);
+    } else {
       setActiveCommentsPostID(postID);
       try {
         const response = await fetch(`/api/comments/${postID}`);
@@ -249,20 +251,20 @@ const Feed = () => {
                 </p>
               )}
               {openModal === post._id && (
-                <div className="absolute top-8 right-0 mb-4 p-2 bg-white border border-gray-200 shadow-lg rounded-lg w-48 z-50 modal-content">
+                <div className="absolute top-8 right-0 mb-4 p-2 bg-white border border-gray-200 shadow-xl rounded-lg w-48 z-50 modal-content transition transform origin-top-right">
                   <button
                     onClick={() => handleUpdatePost(post._id)}
-                    className="flex items-center p-2 text-blue-600 hover:bg-gray-100 w-full"
+                    className="flex items-center gap-2 p-2 text-blue-600 hover:bg-gray-100 border-b  w-full transition-colors "
                   >
-                    <RxUpdate className="mr-2" />
-                    <span>Update Post</span>
+                    <RxUpdate className="text-lg" />
+                    <span className="text-sm font-medium ">Update Post</span>
                   </button>
                   <button
                     onClick={() => handleDelete(post._id)}
-                    className="flex items-center p-2 text-red-600 hover:bg-gray-100 w-full"
+                    className="flex items-center gap-2 p-2 text-red-600 hover:bg-gray-100 w-full transition-colors rounded-md"
                   >
-                    <MdDeleteOutline className="mr-2" />
-                    <span>Delete Post</span>
+                    <MdDeleteOutline className="text-lg" />
+                    <span className="text-sm font-medium">Delete Post</span>
                   </button>
                 </div>
               )}
@@ -279,7 +281,7 @@ const Feed = () => {
             )}
           </div>
           <div className="mt-3 gap-3 flex-col flex overflow-auto break-words w-[47rem]">
-            <p className="font-semibold text-xl">{post.title} :</p>
+            <p className="font-semibold text-xl">{post.title}</p>
             <p className="font-normal  break-words">{post.content}</p>
           </div>
 
@@ -289,10 +291,10 @@ const Feed = () => {
                 className={`group flex items-center duration-150 w-32 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
                   isDarkMode
                     ? likedPosts[post._id]
-                      ? "bg-blue-500 text-white"
+                      ? "bg-blue-600 text-white"
                       : "bg-gray-800 text-white"
                     : likedPosts[post._id]
-                    ? "bg-blue-500 text-white"
+                    ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-600"
                 }`}
                 onClick={() => handleLike(post._id)}
@@ -301,7 +303,7 @@ const Feed = () => {
                   className={`text-lg duration-150 ${
                     likedPosts[post._id]
                       ? "text-white"
-                      : "group-hover:text-blue-700"
+                      : "group-hover:text-blue-800"
                   }`}
                 />
                 <span className="text-xs font-medium">{post.likes} Likes</span>
@@ -341,7 +343,7 @@ const Feed = () => {
                     <div key={index} className="flex items-center gap-2 mb-1">
                       <img
                         src={
-                          user.profilePhoto ||
+                          comment.profilePhoto ||
                           "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                         }
                         alt="Profile"
@@ -349,11 +351,11 @@ const Feed = () => {
                       />
                       <div>
                         {post.userID && user._id && (
-                          <span className="font-medium">
+                          <span className="font-medium flex gap-1 items-center">
                             {comment?.name}{" "}
                             {post.userID?.toString() === user._id && (
-                              <span className="text-sm text-gray-500">
-                                (Author)
+                              <span className="text-[10px] mt-1 text-red-500">
+                                • Author
                               </span>
                             )}
                           </span>

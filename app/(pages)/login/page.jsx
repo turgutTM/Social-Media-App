@@ -98,7 +98,7 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-12">
             <div className="border-b-2 border-gray-600  focus-within:border-b-blue-400 transition duration-300 ease-in-out">
               <input
-                className="focus:outline-none placeholder-gray-400 w-full"
+                className="focus:outline-none  w-full"
                 name="email"
                 type="email"
                 placeholder="Email"

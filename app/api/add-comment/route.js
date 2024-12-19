@@ -27,7 +27,7 @@ export const POST = async (request) => {
     const newComment = {
       userID: user._id,
       name: user.name,
-      profilePhoto: user.profilePhoto || "default-profile-photo-url.jpg",
+      profilePhoto: user.profilePhoto || "/defaultpicture.jpg",
       comment,
       createdAt: new Date(),
     };
