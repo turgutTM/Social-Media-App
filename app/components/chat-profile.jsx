@@ -115,9 +115,9 @@ const Chatprofile = ({
               className="flex gap-3 items-center cursor-pointer"
               onClick={() => handleProfileClick(friend._id)}
             >
-              <div className="w-16">
+              <div className="w-16 h-12">
                 <img
-                  className="w-full rounded-lg"
+                  className="w-full h-full object-contain rounded-lg"
                   src={
                     friend.profilePhoto ||
                     "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"

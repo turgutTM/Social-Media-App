@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect, useRef } from "react";
 import { IoCallOutline, IoSend } from "react-icons/io5";
 import { LuVideo } from "react-icons/lu";
@@ -20,28 +19,20 @@ const Chatconv = ({
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const receiveMessage = (message) => {
-      setMessages((prev) => [...prev, message]);
-    };
+    scrollToBottom();
+  }, [messages]);
 
-    socket.on("receive_message", (message) => {
-      setMessages((prev) => {
-        if (
-          prev.some(
-            (msg) =>
-              msg.timestamp === message.timestamp &&
-              msg.content === message.content
-          )
-        ) {
-          return prev;
-        }
-        return [...prev, message];
-      });
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    socket.on("receive_message", (newMessage) => {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      scrollToBottom();
     });
 
-    return () => {
-      socket.off("receive_message", receiveMessage);
-    };
+    return () => socket.off("receive_message");
   }, []);
 
   useEffect(() => {
@@ -80,56 +71,25 @@ const Chatconv = ({
     }
   }, [user._id, selectedProfileId]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   const handleSendMessage = async () => {
     if (message.trim() !== "") {
-      const senderId = user._id;
-      const receiverId = selectedProfileId;
-      const content = message;
-      const timestamp = new Date().toISOString();
-      const now = new Date();
-      const formattedTimestamp = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
+      const newMessage = {
+        senderId: user._id,
+        receiverId: selectedProfileId,
+        content: message,
+        timestamp: new Date().toISOString(),
+      };
+
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMessage),
       });
 
-      try {
-        const response = await fetch("/api/send-message", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            senderId,
-            receiverId,
-            content,
-            timestamp,
-            read: false,
-          }),
-        });
-
-        if (response.ok) {
-          const newMessage = {
-            sender: user,
-            receiver: selectedProfileId,
-            content: message,
-            timestamp,
-          };
-          setMessages((prev) => [...prev, newMessage]);
-
-          setLastMessageTime(formattedTimestamp);
-
-          socket.emit("send_message", newMessage);
-        } else {
-          console.error("Failed to send message");
-        }
-      } catch (error) {
-        console.error("Error sending message:", error);
-      } finally {
+      if (response.ok) {
+        socket.emit("send_message", newMessage);
         setMessage("");
+        scrollToBottom();
       }
     }
   };
@@ -179,16 +139,16 @@ const Chatconv = ({
             className="w-1/2 h-auto"
           />
           <p className="text-gray-500 mt-4">
-            Choose someone and start conversation
+            Choose someone and start a conversation
           </p>
         </div>
       ) : (
         <>
           <div>
-            <div className="flex items-center p-2 border-b-[1px] w-full gap-3 mt-1 relative">
-              <div className="w-16">
+            <div className="flex items-center p-2 border-b w-full gap-3 mt-1 relative">
+              <div className="w-14 ">
                 <img
-                  className="w-full rounded-full"
+                  className="w-full h-8 rounded-full"
                   src={
                     selectedProfileData?.profilePhoto ||
                     "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
@@ -209,7 +169,6 @@ const Chatconv = ({
                   className="cursor-pointer"
                 />
               </div>
-
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-[5rem] mr-3 w-48 bg-white border border-gray-300 rounded-lg shadow-lg">
                   <ul className="py-2">
@@ -224,49 +183,36 @@ const Chatconv = ({
               )}
             </div>
             <div className="p-4 flex flex-col gap-3 h-[28.3rem] overflow-y-auto scrollbar-hide">
-              {messages.length > 0 ? (
-                messages.map((msg, index) => (
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`flex ${
+                    msg.senderId === user._id ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
-                    key={index}
-                    className={`flex ${
-                      msg.sender._id === user._id
-                        ? "justify-end"
-                        : "justify-start"
-                    }`}
+                    className={`max-w-[38rem] p-3 rounded-2xl text-white ${
+                      msg.senderId === user._id ? "bg-[#4b4b4b]" : "bg-blue-500"
+                    } overflow-auto break-words`}
                   >
-                    <div
-                      className={`max-w-[38rem] p-3 rounded-2xl text-white ${
-                        msg.sender._id === user._id
-                          ? "bg-[#4b4b4b]"
-                          : "bg-blue-500"
-                      } overflow-auto break-words`}
-                    >
-                      <p>{msg.content}</p>
-                      <p className="text-xs text-gray-300 text-right mt-1">
-                        {formatTimestamp(msg.timestamp)}
-                      </p>
-                    </div>
+                    <p>{msg.content}</p>
+                    <p className="text-xs text-gray-300 text-right mt-1">
+                      {formatTimestamp(msg.timestamp)}
+                    </p>
                   </div>
-                ))
-              ) : (
-                <p className="text-gray-500 text-center">
-                  No messages yet. Start the conversation!
-                </p>
-              )}
+                </div>
+              ))}
               <div ref={messagesEndRef} />
             </div>
           </div>
-
           <div className="flex items-center p-4 gap-2">
             <input
               type="text"
-              className="w-full p-2 border-[#c1bfbf] border rounded-full focus:outline-none"
+              className="w-full p-2 border border-[#c1bfbf] rounded-full focus:outline-none"
               placeholder="Type a message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSendMessage();
-              }}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
             />
             <button
               className="text-2xl text-blue-500 p-2"

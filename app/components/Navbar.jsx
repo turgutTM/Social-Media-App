@@ -33,10 +33,18 @@ const Navbar = () => {
   const [followRequests, setFollowRequests] = useState([]);
   const [likedPosts, setLikedPosts] = useState([]);
   const [friendRequests, setFriendRequests] = useState([]);
+  const [currentPath, setCurrentPath] = useState("/");
+  console.log("Current Path:", currentPath);
+
 
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
   const notificationRef = useRef(null);
+
+  const togglePath = (path) => {
+    setCurrentPath(path); 
+  };
+
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem("darkMode");
@@ -168,26 +176,52 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="flex gap-6 ml-32">
+      <div
+        onClick={() => togglePath("/")}
+        className="relative flex items-center gap-1.5 cursor-pointer"
+      >
         <Link href="/">
-          <div className="flex items-center gap-1.5 cursor-pointer">
-            <AiOutlineHome />
-            <p>Homepage</p>
-          </div>
+          <p className={`${currentPath === "/" ? "text-blue-500" : ""}`}>
+            Homepage
+          </p>
         </Link>
-        <div className="flex items-center gap-1.5 cursor-pointer">
-          <Link
-            className="flex items-center gap-1.5 cursor-pointer"
-            href="/friendsPosts"
-          >
-            <LiaUserFriendsSolid />
-            <p>Friends</p>
-          </Link>
-        </div>
-        <div className="flex items-center gap-1.5 cursor-pointer">
-          <CiCirclePlus />
-          <p>Stories</p>
-        </div>
+        {currentPath === "/" && (
+          <span className="absolute bottom-0 left-0 w-full h-1"></span>
+        )}
       </div>
+
+      <div
+        onClick={() => togglePath("/friendsPosts")}
+        className="relative flex items-center gap-1.5 cursor-pointer"
+      >
+        <Link href="/friendsPosts">
+          <p
+            className={`${
+              currentPath === "/friendsPosts" ? "text-blue-500" : ""
+            }`}
+          >
+            Friends
+          </p>
+        </Link>
+        {currentPath === "/friendsPosts" && (
+          <span className="absolute bottom-0 left-0 w-full h-1 "></span>
+        )}
+      </div>
+
+      <div
+        onClick={() => togglePath("/stories")}
+        className="relative flex items-center gap-1.5 cursor-pointer"
+      >
+        <Link href="/stories">
+          <p className={`${currentPath === "/stories" ? "text-blue-500" : ""}`}>
+            Stories
+          </p>
+        </Link>
+        {currentPath === "/stories" && (
+          <span className="absolute bottom-0 left-0 w-full h-1"></span>
+        )}
+      </div>
+    </div>
       <div
         className="relative flex items-center border border-gray-300 rounded-full p-1 ml-36"
         ref={searchRef}

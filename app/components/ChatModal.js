@@ -9,7 +9,7 @@ const ChatModal = ({ chatOpen }) => {
   const [selectedProfileData, setSelectedProfileData] = useState(null);
 
   return (
-    <div className="fixed bottom-0 right-0 m-4 w-[50rem] h-[36rem] flex bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg">
+    <div className="fixed bottom-0 right-0 m-4 w-[50rem] h-[36rem] flex bg-white  border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg">
       <div className="w-[28rem]">
         <ChatProfile
           setSelectedProfileId={setSelectedProfileId}

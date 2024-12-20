@@ -18,8 +18,16 @@ const FriendsPosts = () => {
   const [loading, setLoading] = useState(true);
   const user = useSelector((state) => state.user.user);
   const isDarkMode = useSelector((state) => state.user.darkMode);
+  const [comments, setComments] = useState({});
+  const [activeCommentsPostID, setActiveCommentsPostID] = useState(null);
   const router = useRouter();
 
+  const handleCommentChange = (postID, value) => {
+    setComments((prevComments) => ({
+      ...prevComments,
+      [postID]: value,
+    }));
+  };
   useEffect(() => {
     const fetchFriendsPosts = async () => {
       try {
@@ -92,6 +100,84 @@ const FriendsPosts = () => {
   const handleMouseLeave = () => {
     setHoveredUser(null);
   };
+  const handleSendComment = async (e, postID) => {
+    e.preventDefault();
+    const commentText = comments[postID].trim();
+    if (!commentText) {
+      toast.error("Comment cannot be empty!");
+      return;
+    }
+    try {
+      const response = await fetch("/api/add-comment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          postID,
+          userID: user._id,
+          comment: commentText,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+
+        setFriendsPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post._id === postID
+              ? {
+                  ...post,
+                  comments: [
+                    ...post.comments,
+                    {
+                      name: user.name,
+                      profilePhoto: user.profilePhoto,
+                      comment: result.comment.comment,
+                    },
+                  ],
+                }
+              : post
+          )
+        );
+        setComments((prevComments) => ({
+          ...prevComments,
+          [postID]: "",
+        }));
+
+        toast.success("Comment added successfully!");
+      } else {
+        console.error("Failed to add comment");
+        toast.error("Failed to add comment.");
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      toast.error("An error occurred while adding comment.");
+    }
+  };
+
+  const handleViewComments = async (postID) => {
+    if (activeCommentsPostID === postID) {
+      setActiveCommentsPostID(null);
+    } else {
+      setActiveCommentsPostID(postID);
+      try {
+        const response = await fetch(`/api/comments/${postID}`);
+        if (response.ok) {
+          const commentsData = await response.json();
+          setFriendsPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post._id === postID ? { ...post, comments: commentsData } : post
+            )
+          );
+        } else {
+          console.error("Failed to fetch comments");
+        }
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -108,7 +194,8 @@ const FriendsPosts = () => {
           isDarkMode ? "text-gray-500 text-center " : "text-gray-700"
         }  py-4 flex justify-center items-center h-screen`}
       >
-        You have no friend in your friends list or they have not been shared anything yet
+        You have no friend in your friends list or they have not been shared
+        anything yet
       </p>
     );
   }
@@ -210,57 +297,137 @@ const FriendsPosts = () => {
               </div>
             </div>
             <div>
-              <img
-                className="w-full h-auto rounded-lg mb-4 shadow-md cursor-pointer"
-                src={post.imgURL}
-                alt="Post"
-                onClick={() =>
-                  (window.location.href = `/singlepage/${post._id}`)
-                }
-              />
+              {post.imgURL && (
+                <img
+                  className="w-full h-auto rounded-lg mb-4 shadow-md"
+                  src={post.imgURL}
+                  alt="Post"
+                />
+              )}
             </div>
-            <div className="mt-3">
-              <p className={`${isDarkMode ? "text-white" : "text-black"}`}>
-                {post.content}
-              </p>
+            <div className="mt-3 gap-3 flex-col flex overflow-auto break-words w-[47rem]">
+              <p className="font-semibold text-xl">{post.title}</p>
+              <p className="font-normal  break-words">{post.content}</p>
             </div>
-            <div className="mt-8 flex justify-between">
-              <div className="flex gap-7">
+            <div className="mt-8 flex justify-between w-full  pb-6 border-b-[2px]">
+              <div className="flex w-full gap-7">
                 <div
-                  className={`flex items-center gap-4 p-2 rounded-3xl cursor-pointer ${
-                    likedPosts[post._id]
-                      ? "bg-blue-100 text-blue-600"
-                      : isDarkMode
-                      ? "bg-gray-700 text-white"
+                  className={`group flex items-center duration-150 w-32 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
+                    isDarkMode
+                      ? likedPosts[post._id]
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-800 text-white"
+                      : likedPosts[post._id]
+                      ? "bg-blue-600 text-white"
                       : "bg-gray-100 text-gray-600"
                   }`}
                   onClick={() => handleLike(post._id)}
                 >
-                  <AiOutlineLike className="text-lg" />
-                  <p>{post.likes} likes</p>
+                  <AiOutlineLike
+                    className={`text-lg duration-150 ${
+                      likedPosts[post._id]
+                        ? "text-white"
+                        : "group-hover:text-blue-800"
+                    }`}
+                  />
+                  <span className="text-xs font-medium">
+                    {post.likes} Likes
+                  </span>
+                </div>
+
+                <div
+                  className={`group flex items-center w-36 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
+                    isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100"
+                  }`}
+                  onClick={() => handleViewComments(post._id)}
+                >
+                  <FaRegComments className="text-lg group-hover:text-orange-300 duration-150" />
+                  <span className="text-xs font-medium">
+                    {post.comments?.length || 0} Comments
+                  </span>
                 </div>
                 <div
-                  className={`flex items-center gap-4 p-2 rounded-3xl ${
-                    isDarkMode
-                      ? "bg-gray-700 text-white"
-                      : "bg-gray-100 text-gray-600"
+                  className={`flex group items-center w-28 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
+                    isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100"
                   }`}
                 >
-                  <FaRegComments className="text-lg" />
-                  <p>0 comments</p>
+                  <RiShareForwardLine className="text-lg group-hover:text-green-600 duration-150" />
+                  <span className="text-xs font-medium">Share</span>
                 </div>
               </div>
-              <div
-                className={`flex items-center gap-4 p-2 pl-4 pr-4 rounded-3xl ${
-                  isDarkMode
-                    ? "bg-gray-700 text-white"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                <RiShareForwardLine className="text-lg" />
-                <p>Share</p>
-              </div>
             </div>
+
+            {activeCommentsPostID === post._id && (
+              <div className="mt-4 flex flex-col gap-3">
+                <div
+                  className={`mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin ${
+                    post.comments.length > 3 ? "max-h-60" : ""
+                  }`}
+                >
+                  {post.comments &&
+                    post.comments.map((comment, index) => (
+                      <div key={index} className="flex items-center gap-2 mb-1">
+                        <img
+                          src={
+                            comment.profilePhoto ||
+                            "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                          }
+                          alt="Profile"
+                          className="w-8 h-8 rounded-full"
+                        />
+                        <div>
+                          {post.userID && user._id && (
+                            <span className="font-medium flex gap-1 items-center">
+                              {comment?.name}{" "}
+                              {post.userID?.toString() === user._id && (
+                                <span className="text-[10px] mt-1 text-red-500">
+                                  • Author
+                                </span>
+                              )}
+                            </span>
+                          )}
+                          <p className="text-sm">{comment.comment}</p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                <form
+                  onSubmit={(e) => handleSendComment(e, post._id)}
+                  className="flex items-center gap-4"
+                >
+                  <img
+                    src={
+                      user.profilePhoto ||
+                      "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                    }
+                    alt="User Profile"
+                    className="w-10 h-10 rounded-full"
+                  />
+
+                  <input
+                    type="text"
+                    value={comments[post._id] || ""}
+                    onChange={(e) =>
+                      handleCommentChange(post._id, e.target.value)
+                    }
+                    placeholder="Write a comment..."
+                    className={`flex-1 p-2 focus:outline-none rounded-lg ${
+                      isDarkMode
+                        ? "bg-gray-800 text-white"
+                        : "bg-gray-100 text-black"
+                    }`}
+                  />
+
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  >
+                    Send
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       ))}
