@@ -108,7 +108,7 @@ const RightMenu = () => {
                   className="w-10 h-10 rounded-full object-cover"
                   src={
                     request.profilePhoto ||
-                    "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                    "/defaultpicture.jpg"
                   }
                   alt={`${request.name}'s profile`}
                 />
@@ -153,7 +153,7 @@ const RightMenu = () => {
               <div className="flex items-center gap-3">
                 <img
                   className="w-11 h-11 rounded-full object-cover"
-                  src={friend.profilePhoto || "https://www.befunky.com/images/prismic/5ddfea42-7377-4bef-9ac4-f3bd407d52ab_landing-photo-to-cartoon-img5.jpeg?auto=avif,webp&format=jpg&width=863"}
+                  src={friend.profilePhoto || "/defaultpicture.jpg"}
                   alt={`${friend.name}'s profile`}
                 />
                 <p className="font-semibold">{friend.name}</p>

@@ -6,7 +6,7 @@ export const GET = async (request) => {
   try {
     await connect();
 
-    const userId = request.nextUrl.pathname.split('/').pop();
+    const userId = request.nextUrl.pathname.split("/").pop();
 
     if (!userId) {
       return new NextResponse(
@@ -15,31 +15,30 @@ export const GET = async (request) => {
       );
     }
 
-   
-    const user = await User.findById(userId).populate({
-      path: 'friendRequests',
-      select: 'name profilePhoto email live school worksAt wentTo link joinedAt',
-    }).populate({
-      path: 'friendRequests',
-      populate: { path: 'friendRequests', select: 'name profilePhoto email' } 
-    });
+    const user = await User.findById(userId)
+      .populate({
+        path: "friendRequests",
+        select:
+          "name profilePhoto email live school worksAt wentTo link joinedAt",
+      })
+      .populate({
+        path: "friendRequests",
+        populate: { path: "friendRequests", select: "name profilePhoto email" },
+      });
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ message: "User not found" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ message: "User not found" }), {
+        status: 404,
+      });
     }
 
-  
     const friendRequests = user.friendRequests.filter(
       (request) => !user.friends.includes(request._id)
     );
 
-    return new NextResponse(
-      JSON.stringify({ friendRequests }),
-      { status: 200 }
-    );
+    return new NextResponse(JSON.stringify({ friendRequests }), {
+      status: 200,
+    });
   } catch (error) {
     console.error(error);
     return new NextResponse(

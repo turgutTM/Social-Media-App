@@ -35,16 +35,56 @@ const Navbar = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [currentPath, setCurrentPath] = useState("/");
   console.log("Current Path:", currentPath);
-
+  console.log(friendRequests);
+  
 
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
   const notificationRef = useRef(null);
 
   const togglePath = (path) => {
-    setCurrentPath(path); 
+    setCurrentPath(path);
   };
 
+  useEffect(() => {
+    const fetchFriendRequests = async () => {
+      try {
+        const response = await fetch(`/api/all-friend-request/${user._id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setFriendRequests(data.friendRequests);
+        } else {
+          console.error("Failed to fetch friend requests");
+        }
+      } catch (error) {
+        console.error("Error fetching friend requests:", error);
+      }
+    };
+
+    if (user._id) {
+      fetchFriendRequests();
+    }
+  }, [user._id]);
+
+  useEffect(() => {
+    const fetchLikedPosts = async () => {
+      try {
+        const response = await fetch(`/api/all-liked-posts/${user._id}`);
+        if (response.ok) {
+          const data = await response.json();x  
+          setLikedPosts(data.likedPosts);
+        } else {
+          console.error("Failed to fetch liked posts");
+        }
+      } catch (error) {
+        console.error("Error fetching liked posts:", error);
+      }
+    };
+
+    if (user._id) {
+      fetchLikedPosts();
+    }
+  }, [user._id]);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem("darkMode");
@@ -176,52 +216,54 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="flex gap-6 ml-32">
-      <div
-        onClick={() => togglePath("/")}
-        className="relative flex items-center gap-1.5 cursor-pointer"
-      >
-        <Link href="/">
-          <p className={`${currentPath === "/" ? "text-blue-500" : ""}`}>
-            Homepage
-          </p>
-        </Link>
-        {currentPath === "/" && (
-          <span className="absolute bottom-0 left-0 w-full h-1"></span>
-        )}
-      </div>
+        <div
+          onClick={() => togglePath("/")}
+          className="relative flex items-center gap-1.5 cursor-pointer"
+        >
+          <Link href="/">
+            <p className={`${currentPath === "/" ? "text-blue-500" : ""}`}>
+              Homepage
+            </p>
+          </Link>
+          {currentPath === "/" && (
+            <span className="absolute bottom-0 left-0 w-full h-1"></span>
+          )}
+        </div>
 
-      <div
-        onClick={() => togglePath("/friendsPosts")}
-        className="relative flex items-center gap-1.5 cursor-pointer"
-      >
-        <Link href="/friendsPosts">
-          <p
-            className={`${
-              currentPath === "/friendsPosts" ? "text-blue-500" : ""
-            }`}
-          >
-            Friends
-          </p>
-        </Link>
-        {currentPath === "/friendsPosts" && (
-          <span className="absolute bottom-0 left-0 w-full h-1 "></span>
-        )}
-      </div>
+        <div
+          onClick={() => togglePath("/friendsPosts")}
+          className="relative flex items-center gap-1.5 cursor-pointer"
+        >
+          <Link href="/friendsPosts">
+            <p
+              className={`${
+                currentPath === "/friendsPosts" ? "text-blue-500" : ""
+              }`}
+            >
+              Friends
+            </p>
+          </Link>
+          {currentPath === "/friendsPosts" && (
+            <span className="absolute bottom-0 left-0 w-full h-1 "></span>
+          )}
+        </div>
 
-      <div
-        onClick={() => togglePath("/stories")}
-        className="relative flex items-center gap-1.5 cursor-pointer"
-      >
-        <Link href="/stories">
-          <p className={`${currentPath === "/stories" ? "text-blue-500" : ""}`}>
-            Stories
-          </p>
-        </Link>
-        {currentPath === "/stories" && (
-          <span className="absolute bottom-0 left-0 w-full h-1"></span>
-        )}
+        <div
+          onClick={() => togglePath("/stories")}
+          className="relative flex items-center gap-1.5 cursor-pointer"
+        >
+          <Link href="/stories">
+            <p
+              className={`${currentPath === "/stories" ? "text-blue-500" : ""}`}
+            >
+              Stories
+            </p>
+          </Link>
+          {currentPath === "/stories" && (
+            <span className="absolute bottom-0 left-0 w-full h-1"></span>
+          )}
+        </div>
       </div>
-    </div>
       <div
         className="relative flex items-center border border-gray-300 rounded-full p-1 ml-36"
         ref={searchRef}
@@ -308,9 +350,9 @@ const Navbar = () => {
             className="cursor-pointer flex"
           />
           {totalNotifications > 0 && (
-            <span
-              className={`absolute top-2 ml-2 right-42  w-2 h-2 text-xs font-bold text-white bg-red-600 rounded-full flex items-center justify-center`}
-            ></span>
+            <span className="absolute bottom-4 ml-2 right-42 w-2 h-2 text-xs font-bold text-white bg-red-600 p-2 rounded-full flex items-center justify-center">
+              {totalNotifications}
+            </span>
           )}
         </div>
 
@@ -322,68 +364,50 @@ const Navbar = () => {
             } border rounded-lg shadow-lg`}
           >
             <div className="p-4 gap-4 flex flex-col max-h-64 overflow-y-auto scrollbar-thin">
-              {likedPosts.length > 0 ? (
-                likedPosts.map((likedPost) => (
-                  <div key={likedPost._id}>
-                    <div
-                      className={`flex  ${
-                        isDarkMode ? "border-gray-600" : "border-b-2"
-                      } duration-200 rounded-lg p-2 items-center gap-3`}
-                    >
-                      <img
-                        className="w-11 h-11 object-cover rounded-full"
-                        src={
-                          likedPost.profilePhoto ||
-                          "https://images.pexels.com/photos/428364/pexels-photo-428364.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                        }
-                        alt={likedPost.name}
-                      />
-                      <div className="flex flex-col">
-                        <p>
-                          <Link href={`/profile/${likedPost._id}`}>
-                            <span className="font-medium">
-                              {likedPost.name}
-                            </span>{" "}
-                          </Link>
-                          liked your post
-                        </p>
-                      </div>
+              {likedPosts.map((likedPost) => (
+                <div key={likedPost._id}>
+                  <div
+                    className={`flex ${
+                      isDarkMode ? "border-gray-600" : "border-b-2"
+                    } duration-200 rounded-lg p-2 items-center gap-3`}
+                  >
+                    <img
+                      className="w-11 h-11 object-cover rounded-full"
+                      src={likedPost.profilePhoto || "/defaultpicture.jpg"}
+                      alt={likedPost.name}
+                    />
+                    <div className="flex flex-col">
+                      <p>
+                        <Link href={`/profile/${likedPost._id}`}>
+                          <span className="font-medium">{likedPost.name}</span>
+                        </Link>
+                        liked your post
+                      </p>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p></p>
-              )}
-              {friendRequests.length > 0 ? (
-                friendRequests.map((request) => (
-                  <Link key={request._id} href={`/profile/${request._id}`}>
-                    <div
-                      className={`flex cursor-pointer ${
-                        isDarkMode ? "border-gray-600" : "border-b-2"
-                      } duration-200 rounded-lg p-2 items-center gap-3`}
-                    >
-                      <img
-                        className="w-11 h-11 object-cover rounded-full"
-                        src={
-                          request.profilePhoto ||
-                          "https://images.pexels.com/photos/428364/pexels-photo-428364.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                        }
-                        alt={request.name}
-                      />
-                      <div className="flex flex-col">
-                        <p>
-                          <span className="font-medium">{request.name}</span>{" "}
-                          sent you a friend request
-                        </p>
-                      </div>
+                </div>
+              ))}
+              {friendRequests.map((request) => (
+                <Link key={request._id} href={`/profile/${request._id}`}>
+                  <div
+                    className={`flex cursor-pointer ${
+                      isDarkMode ? "border-gray-600" : "border-b-2"
+                    } duration-200 rounded-lg p-2 items-center gap-3`}
+                  >
+                    <img
+                      className="w-11 h-11 object-cover rounded-full"
+                      src={request.profilePhoto || "/defaultpicture.jpg"}
+                      alt={request.name}
+                    />
+                    <div className="flex flex-col">
+                      <p>
+                        <span className="font-medium">{request.name}</span> sent
+                        you a friend request
+                      </p>
                     </div>
-                  </Link>
-                ))
-              ) : (
-                <p className="w-full flex justify-center">
-                  No more new notifications
-                </p>
-              )}
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         )}

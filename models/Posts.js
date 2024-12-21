@@ -17,15 +17,7 @@ const PostSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    comments: [
-      {
-        userID: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        name: { type: String, required: true },
-        profilePhoto: { type: String, required: true },
-        comment: { type: String, required: true },
-        createdAt: { type: Date, default: Date.now },
-      },
-    ],
+
     likes: {
       type: Number,
       default: 0,
@@ -43,7 +35,7 @@ const PostSchema = new mongoose.Schema(
   }
 );
 
-PostSchema.path("comments").default(() => []);
+
 
 const Post = mongoose.models.Post || mongoose.model("Post", PostSchema);
 
