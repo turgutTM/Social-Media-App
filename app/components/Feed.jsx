@@ -350,16 +350,16 @@ const Feed = () => {
                         className="w-8 h-8 rounded-full"
                       />
                       <div>
-                        {post.userID && user._id && (
-                          <span className="font-medium flex gap-1 items-center">
-                            {comment?.name}{" "}
-                            {post.userID?.toString() === user._id && (
-                              <span className="text-[10px] mt-1 text-red-500">
-                                • Author
-                              </span>
-                            )}
-                          </span>
-                        )}
+                        <span className="font-medium flex gap-1 items-center">
+                          {comment?.name}{" "}
+                          {post.userID.toString() ===
+                            comment.userID.toString() && (
+                            <span className="text-[10px] mt-1 text-red-500">
+                              • Author
+                            </span>
+                          )}
+                        </span>
+
                         <p className="text-sm">{comment.comment}</p>
                       </div>
                     </div>
