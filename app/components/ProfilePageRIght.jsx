@@ -74,6 +74,24 @@ const ProfilePageRight = ({ userId }) => {
 
       if (response.ok) {
         dispatch(addFriendRequest(userId));
+
+      
+        const notificationResponse = await fetch('/api/send-notification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            receiverId: userId, 
+            senderId: loggedUserId,  
+            type: 'friend_request',
+          }),
+        });
+
+        if (!notificationResponse.ok) {
+          const error = await notificationResponse.json();
+          console.error("Failed to send notification:", error.message);
+        }
       } else {
         const error = await response.json();
         console.error("Error sending friend request:", error.message);
@@ -84,6 +102,7 @@ const ProfilePageRight = ({ userId }) => {
       setRequestSent(false);
     }
   };
+
 
   const removeFriendFromList = async () => {
     setRequestSent(true);

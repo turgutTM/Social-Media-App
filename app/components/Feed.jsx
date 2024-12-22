@@ -55,7 +55,7 @@ const Feed = () => {
     fetchPosts();
   }, [user._id]);
 
-  const handleLike = async (postID) => {
+  const handleLike = async (postID, postUserID) => {
     const isLiked = likedPosts[postID];
     const newLikedPosts = { ...likedPosts, [postID]: !isLiked };
     setLikedPosts(newLikedPosts);
@@ -83,8 +83,27 @@ const Feed = () => {
         },
         body: JSON.stringify({ userID: user._id }),
       });
+
       if (!response.ok) {
         throw new Error("Failed to like/unlike post");
+      }
+
+      if (!isLiked) {
+        const notificationResponse = await fetch("/api/send-notification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            receiverId: postUserID,
+            senderId: user._id,
+            type: "like",
+          }),
+        });
+
+        if (!notificationResponse.ok) {
+          console.error("Failed to send notification");
+        }
       }
     } catch (error) {
       console.error("Error liking/unliking post:", error);
@@ -113,8 +132,9 @@ const Feed = () => {
       toast.error("Failed to delete post");
     }
   };
-  const handleSendComment = async (e, postID) => {
+  const handleSendComment = async (e, postID, postUserID) => {
     e.preventDefault();
+    console.log("Post UserID:", postUserID);
 
     try {
       const response = await fetch("/api/share-comment", {
@@ -131,10 +151,31 @@ const Feed = () => {
 
       if (response.ok) {
         const result = await response.json();
+        console.log(result);
+
         setComments((prevComments) => [...prevComments, result]);
         setCommentText("");
-
         toast.success("Comment added successfully!");
+
+        if (user._id !== postUserID) {
+          const notifyResponse = await fetch("/api/send-notification", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              receiverId: postUserID,
+              senderId: user._id,
+              type: "comment",
+            }),
+          });
+
+          if (!notifyResponse.ok) {
+            console.error("Failed to send notification");
+          } else {
+            console.log("Notification sent successfully");
+          }
+        }
       } else {
         console.error("Failed to add comment");
         toast.error("Failed to add comment.");
@@ -279,7 +320,7 @@ const Feed = () => {
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-600"
                 }`}
-                onClick={() => handleLike(post._id)}
+                onClick={() => handleLike(post._id, post.userID)}
               >
                 <AiOutlineLike
                   className={`text-lg duration-150 ${
@@ -299,7 +340,7 @@ const Feed = () => {
               >
                 <FaRegComments className="text-lg group-hover:text-orange-300 duration-150" />
                 <span className="text-xs font-medium">
-                  {comments.length} Comments
+                  {post.commentCount} Comments
                 </span>
               </div>
               <div
@@ -352,7 +393,7 @@ const Feed = () => {
               )}
 
               <form
-                onSubmit={(e) => handleSendComment(e, post._id)}
+                onSubmit={(e) => handleSendComment(e, post._id, post.userID)}
                 className="flex items-center gap-4"
               >
                 <img

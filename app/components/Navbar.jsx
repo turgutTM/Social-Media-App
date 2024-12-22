@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { AiOutlineHome } from "react-icons/ai";
-import { LiaUserFriendsSolid } from "react-icons/lia";
 import { CiCirclePlus, CiSearch, CiChat1 } from "react-icons/ci";
 import { MdOutlineNightlight } from "react-icons/md";
 import { GoSun } from "react-icons/go";
@@ -30,61 +28,20 @@ const Navbar = () => {
   const [dropdownNotification, setDropdownNotification] = useState(false);
   const [users, setUsers] = useState([]);
   const [searchInput, setSearchInput] = useState("");
-  const [followRequests, setFollowRequests] = useState([]);
+  const [notifications, setNotifications] = useState("");
+
   const [likedPosts, setLikedPosts] = useState([]);
-  const [friendRequests, setFriendRequests] = useState([]);
+
   const [currentPath, setCurrentPath] = useState("/");
-  console.log("Current Path:", currentPath);
-  console.log(friendRequests);
-  
 
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
   const notificationRef = useRef(null);
+  console.log(likedPosts);
 
   const togglePath = (path) => {
     setCurrentPath(path);
   };
-
-  useEffect(() => {
-    const fetchFriendRequests = async () => {
-      try {
-        const response = await fetch(`/api/all-friend-request/${user._id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setFriendRequests(data.friendRequests);
-        } else {
-          console.error("Failed to fetch friend requests");
-        }
-      } catch (error) {
-        console.error("Error fetching friend requests:", error);
-      }
-    };
-
-    if (user._id) {
-      fetchFriendRequests();
-    }
-  }, [user._id]);
-
-  useEffect(() => {
-    const fetchLikedPosts = async () => {
-      try {
-        const response = await fetch(`/api/all-liked-posts/${user._id}`);
-        if (response.ok) {
-          const data = await response.json();x  
-          setLikedPosts(data.likedPosts);
-        } else {
-          console.error("Failed to fetch liked posts");
-        }
-      } catch (error) {
-        console.error("Error fetching liked posts:", error);
-      }
-    };
-
-    if (user._id) {
-      fetchLikedPosts();
-    }
-  }, [user._id]);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem("darkMode");
@@ -93,6 +50,26 @@ const Navbar = () => {
       dispatch(setDarkMode(isDarkModeEnabled));
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch(`/api/get-notification/${user._id}`);
+        if (response.ok) {
+          const notifications = await response.json();
+          setNotifications(notifications);
+        } else {
+          console.error("Failed to fetch notifications");
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    if (user && user._id) {
+      fetchNotifications();
+    }
+  }, [user._id]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -201,8 +178,6 @@ const Navbar = () => {
   const handleToggleChat = () => {
     setChatOpen(!chatOpen);
   };
-
-  const totalNotifications = likedPosts.length + friendRequests.length;
 
   return (
     <div
@@ -349,66 +324,35 @@ const Navbar = () => {
             onClick={toggleDropNotification}
             className="cursor-pointer flex"
           />
-          {totalNotifications > 0 && (
-            <span className="absolute bottom-4 ml-2 right-42 w-2 h-2 text-xs font-bold text-white bg-red-600 p-2 rounded-full flex items-center justify-center">
-              {totalNotifications}
-            </span>
-          )}
+
+          <span className="absolute bottom-4 ml-2 right-42 w-2 h-2 text-xs font-bold text-white bg-red-600 p-2 rounded-full flex items-center justify-center">
+            {notifications.length}
+          </span>
         </div>
 
         {dropdownNotification && (
           <div
-            ref={dropdownRef}
-            className={`absolute right-8 top-5 z-10 mr-32 mt-2 w-96 ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-            } border rounded-lg shadow-lg`}
+            ref={notificationRef}
+            className={`absolute right-0 top-full z-50 mt-2 w-80 bg-white shadow-lg rounded-lg p-2 ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            }`}
           >
-            <div className="p-4 gap-4 flex flex-col max-h-64 overflow-y-auto scrollbar-thin">
-              {likedPosts.map((likedPost) => (
-                <div key={likedPost._id}>
-                  <div
-                    className={`flex ${
-                      isDarkMode ? "border-gray-600" : "border-b-2"
-                    } duration-200 rounded-lg p-2 items-center gap-3`}
-                  >
-                    <img
-                      className="w-11 h-11 object-cover rounded-full"
-                      src={likedPost.profilePhoto || "/defaultpicture.jpg"}
-                      alt={likedPost.name}
-                    />
-                    <div className="flex flex-col">
-                      <p>
-                        <Link href={`/profile/${likedPost._id}`}>
-                          <span className="font-medium">{likedPost.name}</span>
-                        </Link>
-                        liked your post
-                      </p>
-                    </div>
-                  </div>
+            {notifications.length > 0 ? (
+              notifications.map((notification) => (
+                <div
+                  key={notification._id}
+                  className="p-2 hover:bg-gray-200 flex gap-2 items-center"
+                >
+                  <img
+                    className="w-8 h-8 rounded-full"
+                    src={notification.content.photo}
+                  ></img>
+                  <span className="text-sm"> {notification.content.text}</span>
                 </div>
-              ))}
-              {friendRequests.map((request) => (
-                <Link key={request._id} href={`/profile/${request._id}`}>
-                  <div
-                    className={`flex cursor-pointer ${
-                      isDarkMode ? "border-gray-600" : "border-b-2"
-                    } duration-200 rounded-lg p-2 items-center gap-3`}
-                  >
-                    <img
-                      className="w-11 h-11 object-cover rounded-full"
-                      src={request.profilePhoto || "/defaultpicture.jpg"}
-                      alt={request.name}
-                    />
-                    <div className="flex flex-col">
-                      <p>
-                        <span className="font-medium">{request.name}</span> sent
-                        you a friend request
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+              ))
+            ) : (
+              <p>No notifications</p>
+            )}
           </div>
         )}
 

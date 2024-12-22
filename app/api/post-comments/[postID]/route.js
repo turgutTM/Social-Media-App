@@ -9,6 +9,7 @@ export const GET = async (request) => {
 
     const postID = request.url.split("/").pop();
     console.log(postID);
+  
 
     if (!postID) {
       return new NextResponse("Missing postID", { status: 400 });
@@ -30,6 +31,8 @@ export const GET = async (request) => {
     );
 
     return new NextResponse(JSON.stringify(detailedComments), { status: 200 });
+  
+    
   } catch (error) {
     console.error("Error fetching comments:", error);
     return new NextResponse("Internal Server Error", { status: 500 });

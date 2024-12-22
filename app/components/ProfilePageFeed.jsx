@@ -17,16 +17,14 @@ const ProfilePageFeed = ({ userId }) => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState(null);
-
   const [likedPosts, setLikedPosts] = useState({});
   const [comments, setComments] = useState({});
   const [activeCommentsPostID, setActiveCommentsPostID] = useState(null);
   const [openUpdateModal, setOpenUpdateModal] = useState(null);
   const [canViewProfile, setCanViewProfile] = useState(false);
-  const [loading, setLoading] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [commentText, setCommentText] = useState("");
   const [openModal, setOpenModal] = useState(null);
-
   const darkMode = useSelector((state) => state.user.darkMode);
   const loggedUser = useSelector((state) => state.user.user);
   const loggedUserId = loggedUser?._id;
@@ -155,15 +153,12 @@ const ProfilePageFeed = ({ userId }) => {
     }
   };
 
-  const handleSendComment = async (e, postID) => {
+  const handleSendComment = async (e, postID, postUserID) => {
     e.preventDefault();
-    const commentText = comments[postID].trim();
-    if (!commentText) {
-      toast.error("Comment cannot be empty!");
-      return;
-    }
+    console.log("Post UserID:", postUserID);
+
     try {
-      const response = await fetch("/api/add-comment", {
+      const response = await fetch("/api/share-comment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,29 +172,10 @@ const ProfilePageFeed = ({ userId }) => {
 
       if (response.ok) {
         const result = await response.json();
+        console.log(result);
 
-        setPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post._id === postID
-              ? {
-                  ...post,
-                  comments: [
-                    ...post.comments,
-                    {
-                      name: result.comment.name,
-                      profilePhoto: result.comment.profilePhoto,
-                      comment: result.comment.comment,
-                    },
-                  ],
-                }
-              : post
-          )
-        );
-        setComments((prevComments) => ({
-          ...prevComments,
-          [postID]: "",
-        }));
-
+        setComments((prevComments) => [...prevComments, result]);
+        setCommentText("");
         toast.success("Comment added successfully!");
       } else {
         console.error("Failed to add comment");
@@ -212,25 +188,24 @@ const ProfilePageFeed = ({ userId }) => {
   };
 
   const handleViewComments = async (postID) => {
+    setIsLoading(true);
     if (activeCommentsPostID === postID) {
       setActiveCommentsPostID(null);
+      setIsLoading(false);
     } else {
       setActiveCommentsPostID(postID);
       try {
-        const response = await fetch(`/api/comments/${postID}`);
+        const response = await fetch(`/api/post-comments/${postID}`);
         if (response.ok) {
           const commentsData = await response.json();
-          setPosts((prevPosts) =>
-            prevPosts.map((post) =>
-              post._id === postID ? { ...post, comments: commentsData } : post
-            )
-          );
+          setComments(commentsData);
         } else {
           console.error("Failed to fetch comments");
         }
       } catch (error) {
         console.error("Error fetching comments:", error);
       }
+      setIsLoading(false);
     }
   };
 
@@ -335,7 +310,7 @@ const ProfilePageFeed = ({ userId }) => {
                 >
                   <FaRegComments className="text-lg group-hover:text-orange-300 duration-150" />
                   <span className="text-xs font-medium">
-                    {post.comments.length} Comments
+                    {post.commentCount} Comments
                   </span>
                 </div>
                 <div
@@ -351,15 +326,45 @@ const ProfilePageFeed = ({ userId }) => {
               </div>
             </div>
             {activeCommentsPostID === post._id && (
-              <div
-                className={`mt-4 flex flex-col gap-4 ${
-                  post.comments.length > 3
-                    ? "max-h-72 overflow-y-auto scrollbar-thin"
-                    : ""
-                }`}
-              >
+              <div className="mt-4 flex flex-col gap-3">
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-[7rem]">
+                    <ClipLoader
+                      size={20}
+                      color={"#123abc"}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin max-h-60">
+                    {comments.map((comment, index) => (
+                      <div key={index} className="flex items-center gap-2 mb-1">
+                        <img
+                          src={
+                            comment?.user?.profilePhoto ||
+                            "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                          }
+                          alt="Profile"
+                          className="w-8 h-8 rounded-full"
+                        />
+                        <div>
+                          <span className="font-medium flex gap-1 items-center">
+                            {comment.user?.name}
+                            {post?.userID == comment?.userID && (
+                              <span className="text-[10px] mt-1 text-red-500">
+                                • Author
+                              </span>
+                            )}
+                          </span>
+                          <p className="text-sm">{comment.comment}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <form
-                  onSubmit={(e) => handleSendComment(e, post._id)}
+                  onSubmit={(e) => handleSendComment(e, post._id, post.userID)}
                   className="flex items-center gap-4"
                 >
                   <img
@@ -370,21 +375,17 @@ const ProfilePageFeed = ({ userId }) => {
                     alt="User Profile"
                     className="w-10 h-10 rounded-full"
                   />
-
                   <input
                     type="text"
-                    value={comments[post._id] || ""}
-                    onChange={(e) =>
-                      handleCommentChange(post._id, e.target.value)
-                    }
                     placeholder="Write a comment..."
                     className={`flex-1 p-2 focus:outline-none rounded-lg ${
                       isDarkMode
                         ? "bg-gray-800 text-white"
                         : "bg-gray-100 text-black"
                     }`}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
                   />
-
                   <button
                     type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
@@ -392,25 +393,6 @@ const ProfilePageFeed = ({ userId }) => {
                     Send
                   </button>
                 </form>
-                {post.comments.map((comment) => (
-                  <div
-                    key={comment._id}
-                    className="flex items-center gap-3 border-gray-300 py-2"
-                  >
-                    <img
-                      className="w-9 h-9 rounded-full object-cover"
-                      src={
-                        comment.profilePhoto ||
-                        "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-                      }
-                      alt="Commenter"
-                    />
-                    <div className="flex flex-col">
-                      <p className="font-medium text-[14px]">{comment.name}</p>
-                      <p className="text-sm">{comment.comment}</p>
-                    </div>
-                  </div>
-                ))}
               </div>
             )}
           </div>

@@ -17,6 +17,10 @@ const PostSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    commentCount: {
+      type: Number,
+      default: 0,
+    },
 
     likes: {
       type: Number,
@@ -34,8 +38,6 @@ const PostSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-
 
 const Post = mongoose.models.Post || mongoose.model("Post", PostSchema);
 

@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import connect from "../../../../db";
 import Post from "../../../../models/Posts";
-import User from "../../../../models/User";
-
 
 export const GET = async (request) => {
   try {
     await connect();
-    
 
     const id = request.nextUrl.pathname.split("/").pop();
 
@@ -18,36 +15,28 @@ export const GET = async (request) => {
       );
     }
 
-    const posts = await Post.find({ userID: id }).populate({
+    const posts = await Post.find({ userID: id }, "imgURL likedBy").populate({
       path: "likedBy",
-      select:
-        "email name profilePhoto bio live school worksAt wentTo link joinedAt",
+      select: "name profilePhoto",
       options: { lean: true },
     });
 
-    const postsWithLikes = posts.filter((post) => post.likedBy.length > 0);
-
-    if (postsWithLikes.length === 0) {
+    if (!posts || posts.length === 0) {
       return new NextResponse(
-        JSON.stringify({ message: "No posts with likes found" }),
+        JSON.stringify({ message: "No posts found or no liked posts" }),
         { status: 404 }
       );
     }
 
-    const userIdsWithLikes = postsWithLikes.flatMap((post) =>
-      post.likedBy.map((user) => user._id)
-    );
+    const processedPosts = posts.map((post) => ({
+      imgURL: post.imgURL,
+      likedUsers: post.likedBy.map((user) => ({
+        name: user.name,
+        profilePhoto: user.profilePhoto,
+      })),
+    }));
 
-    const uniqueUserIds = [...new Set(userIdsWithLikes)];
-    const users = await User.find({ _id: { $in: uniqueUserIds } })
-      .select(
-        "email name profilePhoto bio live school worksAt wentTo link joinedAt"
-      )
-      .lean();
-
-    return new NextResponse(JSON.stringify({ posts: postsWithLikes, users }), {
-      status: 200,
-    });
+    return new NextResponse(JSON.stringify(processedPosts), { status: 200 });
   } catch (error) {
     console.error(error);
     return new NextResponse(
