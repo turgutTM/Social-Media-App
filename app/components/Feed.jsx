@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import UpdatePostModal from "../components/UpdatePostModal";
 import { useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
+import Skeleton from "../components/Skeleton";
 
 const Feed = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
@@ -24,7 +25,7 @@ const Feed = () => {
   const [activeCommentsPostID, setActiveCommentsPostID] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const user = useSelector((state) => state.user.user);
 
@@ -49,6 +50,8 @@ const Feed = () => {
         }
       } catch (error) {
         console.error("Error fetching posts:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -132,9 +135,9 @@ const Feed = () => {
       toast.error("Failed to delete post");
     }
   };
+
   const handleSendComment = async (e, postID, postUserID) => {
     e.preventDefault();
-    console.log("Post UserID:", postUserID);
 
     try {
       const response = await fetch("/api/share-comment", {
@@ -151,8 +154,6 @@ const Feed = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log(result);
-
         setComments((prevComments) => [...prevComments, result]);
         setCommentText("");
         toast.success("Comment added successfully!");
@@ -173,8 +174,6 @@ const Feed = () => {
 
           if (!notifyResponse.ok) {
             console.error("Failed to send notification");
-          } else {
-            console.log("Notification sent successfully");
           }
         }
       } else {
@@ -228,144 +227,136 @@ const Feed = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [openModal]);
 
-  {
-    isLoading && (
-      <div className="flex justify-center items-center h-screen">
-        <ClipLoader size={70} color={"#123abc"} isLoading={isLoading} />
-      </div>
-    );
-  }
-
   return (
     <div
       className={`flex mb-4 ${
         isDarkMode ? "bg-gray-900 text-white border-t" : "bg-white text-black"
       } flex-col p-4 shadow-md gap-14`}
     >
-      {posts.map((post) => (
-        <div key={post._id} className="flex flex-col gap-3">
-          <div className="flex gap-4 w-full justify-between">
-            <div className="flex gap-2">
-              <img
-                className="w-12 h-12 rounded-full object-cover"
-                src={
-                  post.user?.profilePhoto ||
-                  "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-                }
-                alt="Profile"
-              />
-              <div className="flex flex-col gap-1 ml-2">
-                <Link href={`/profile/${post.user._id}`}>
-                  <p className="font-medium cursor-pointer">
-                    {post.user ? post.user.name : "Unknown User"}
-                  </p>
-                </Link>
-                <p className="text-xs text-gray-400">
-                  {new Date(post.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <div className="relative">
-              {user && user._id === post.user._id && (
-                <p
-                  className="cursor-pointer mt-3 mr-1"
-                  onClick={() => toggleModal(post._id)}
-                >
-                  <BsThreeDots />
-                </p>
-              )}
-              {openModal === post._id && (
-                <div className="absolute top-8 right-0 mb-4 p-2 bg-white border border-gray-200 shadow-xl rounded-lg w-48 z-50 modal-content transition transform origin-top-right">
-                  <button
-                    onClick={() => handleUpdatePost(post._id)}
-                    className="flex items-center gap-2 p-2 text-blue-600 hover:bg-gray-100 border-b  w-full transition-colors "
-                  >
-                    <RxUpdate className="text-lg" />
-                    <span className="text-sm font-medium ">Update Post</span>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(post._id)}
-                    className="flex items-center gap-2 p-2 text-red-600 hover:bg-gray-100 w-full transition-colors rounded-md"
-                  >
-                    <MdDeleteOutline className="text-lg" />
-                    <span className="text-sm font-medium">Delete Post</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            {post.imgURL && (
-              <img
-                className="rounded-lg max-h-96 w-full object-cover cursor-pointer"
-                src={post.imgURL}
-                alt="Post"
-              />
-            )}
-          </div>
-          <div className="mt-3 gap-3 flex-col flex overflow-auto break-words w-[47rem]">
-            <p className="font-semibold text-xl">{post.title}</p>
-            <p className="font-normal  break-words">{post.content}</p>
-          </div>
-
-          <div className="mt-8 flex justify-between w-full  pb-6 border-b-[2px]">
-            <div className="flex w-full gap-7">
-              <div
-                className={`group flex items-center duration-150 w-32 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
-                  isDarkMode
-                    ? likedPosts[post._id]
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-800 text-white"
-                    : likedPosts[post._id]
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-                onClick={() => handleLike(post._id, post.userID)}
-              >
-                <AiOutlineLike
-                  className={`text-lg duration-150 ${
-                    likedPosts[post._id]
-                      ? "text-white"
-                      : "group-hover:text-blue-800"
-                  }`}
+      {isLoading ? (
+        <div className="p-4">
+          {[...Array(5)].map((_, index) => (
+            <Skeleton key={index} type="feed" />
+          ))}
+        </div>
+      ) : (
+        posts.map((post) => (
+          <div key={post._id} className="flex flex-col gap-3">
+            <div className="flex gap-4 w-full justify-between">
+              <div className="flex gap-2">
+                <img
+                  className="w-12 h-12 rounded-full object-cover"
+                  src={
+                    post.user?.profilePhoto ||
+                    "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                  }
+                  alt="Profile"
                 />
-                <span className="text-xs font-medium">{post.likes} Likes</span>
+                <div className="flex flex-col gap-1 ml-2">
+                  <Link href={`/profile/${post.user._id}`}>
+                    <p className="font-medium cursor-pointer">
+                      {post.user ? post.user.name : "Unknown User"}
+                    </p>
+                  </Link>
+                  <p className="text-xs text-gray-400">
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-
-              <div
-                className={`group flex items-center w-36 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
-                  isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100"
-                }`}
-                onClick={() => handleViewComments(post._id)}
-              >
-                <FaRegComments className="text-lg group-hover:text-orange-300 duration-150" />
-                <span className="text-xs font-medium">
-                  {post.commentCount} Comments
-                </span>
-              </div>
-              <div
-                className={`flex group items-center w-28 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
-                  isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100"
-                }`}
-              >
-                <RiShareForwardLine className="text-lg group-hover:text-green-600 duration-150" />
-                <span className="text-xs font-medium">Share</span>
+              <div className="relative">
+                {user && user._id === post.user._id && (
+                  <p
+                    className="cursor-pointer mt-3 mr-1"
+                    onClick={() => toggleModal(post._id)}
+                  >
+                    <BsThreeDots />
+                  </p>
+                )}
+                {openModal === post._id && (
+                  <div className="absolute top-8 right-0 mb-4 p-2 bg-white border border-gray-200 shadow-xl rounded-lg w-48 z-50 modal-content transition transform origin-top-right">
+                    <button
+                      onClick={() => handleUpdatePost(post._id)}
+                      className="flex items-center gap-2 p-2 text-blue-600 hover:bg-gray-100 border-b w-full transition-colors"
+                    >
+                      <RxUpdate className="text-lg" />
+                      <span className="text-sm font-medium">Update Post</span>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(post._id)}
+                      className="flex items-center gap-2 p-2 text-red-600 hover:bg-gray-100 w-full transition-colors rounded-md"
+                    >
+                      <MdDeleteOutline className="text-lg" />
+                      <span className="text-sm font-medium">Delete Post</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
 
-          {activeCommentsPostID === post._id && (
-            <div className="mt-4 flex flex-col gap-3">
-              {isLoading ? (
-                <div className="flex justify-center items-center h-[7rem]">
-                  <ClipLoader
-                    size={20}
-                    color={"#123abc"}
-                    isLoading={isLoading}
+            <div>
+              {post.imgURL && (
+                <img
+                  className="rounded-lg max-h-96 w-full object-cover cursor-pointer"
+                  src={post.imgURL}
+                  alt="Post"
+                />
+              )}
+            </div>
+            <div className="mt-3 gap-3 flex-col flex overflow-auto break-words w-[47rem]">
+              <p className="font-semibold text-xl">{post.title}</p>
+              <p className="font-normal break-words">{post.content}</p>
+            </div>
+
+            <div className="mt-8 flex justify-between w-full pb-6 border-b-[2px]">
+              <div className="flex w-full gap-7">
+                <div
+                  className={`group flex items-center duration-150 w-32 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
+                    isDarkMode
+                      ? likedPosts[post._id]
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-800 text-white"
+                      : likedPosts[post._id]
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                  onClick={() => handleLike(post._id, post.userID)}
+                >
+                  <AiOutlineLike
+                    className={`text-lg duration-150 ${
+                      likedPosts[post._id]
+                        ? "text-white"
+                        : "group-hover:text-blue-800"
+                    }`}
                   />
+                  <span className="text-xs font-medium">
+                    {post.likes} Likes
+                  </span>
                 </div>
-              ) : (
+
+                <div
+                  className={`group flex items-center w-36 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
+                    isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100"
+                  }`}
+                  onClick={() => handleViewComments(post._id)}
+                >
+                  <FaRegComments className="text-lg group-hover:text-orange-300 duration-150" />
+                  <span className="text-xs font-medium">
+                    {post.commentCount} Comments
+                  </span>
+                </div>
+                <div
+                  className={`flex group items-center w-28 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
+                    isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100"
+                  }`}
+                >
+                  <RiShareForwardLine className="text-lg group-hover:text-green-600 duration-150" />
+                  <span className="text-xs font-medium">Share</span>
+                </div>
+              </div>
+            </div>
+
+            {activeCommentsPostID === post._id && (
+              <div className="mt-4 flex flex-col gap-3">
                 <div className="mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin max-h-60">
                   {comments.map((comment, index) => (
                     <div key={index} className="flex items-center gap-2 mb-1">
@@ -380,7 +371,7 @@ const Feed = () => {
                       <div>
                         <span className="font-medium flex gap-1 items-center">
                           {comment.user?.name}
-                          {post?.userID == comment?.userID && (
+                          {post?.userID === comment?.userID && (
                             <span className="text-[10px] mt-1 text-red-500">
                               • Author
                             </span>
@@ -391,42 +382,42 @@ const Feed = () => {
                     </div>
                   ))}
                 </div>
-              )}
 
-              <form
-                onSubmit={(e) => handleSendComment(e, post._id, post.userID)}
-                className="flex items-center gap-4"
-              >
-                <img
-                  src={
-                    user.profilePhoto ||
-                    "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-                  }
-                  alt="User Profile"
-                  className="w-10 h-10 rounded-full"
-                />
-                <input
-                  type="text"
-                  placeholder="Write a comment..."
-                  className={`flex-1 p-2 focus:outline-none rounded-lg ${
-                    isDarkMode
-                      ? "bg-gray-800 text-white"
-                      : "bg-gray-100 text-black"
-                  }`}
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                />
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                <form
+                  onSubmit={(e) => handleSendComment(e, post._id, post.userID)}
+                  className="flex items-center gap-4"
                 >
-                  Send
-                </button>
-              </form>
-            </div>
-          )}
-        </div>
-      ))}
+                  <img
+                    src={
+                      user.profilePhoto ||
+                      "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                    }
+                    alt="User Profile"
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Write a comment..."
+                    className={`flex-1 p-2 focus:outline-none rounded-lg ${
+                      isDarkMode
+                        ? "bg-gray-800 text-white"
+                        : "bg-gray-100 text-black"
+                    }`}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                  />
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  >
+                    Send
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        ))
+      )}
 
       {openUpdateModal && (
         <UpdatePostModal

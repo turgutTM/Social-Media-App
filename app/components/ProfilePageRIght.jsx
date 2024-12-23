@@ -75,16 +75,15 @@ const ProfilePageRight = ({ userId }) => {
       if (response.ok) {
         dispatch(addFriendRequest(userId));
 
-      
-        const notificationResponse = await fetch('/api/send-notification', {
-          method: 'POST',
+        const notificationResponse = await fetch("/api/send-notification", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            receiverId: userId, 
-            senderId: loggedUserId,  
-            type: 'friend_request',
+            receiverId: userId,
+            senderId: loggedUserId,
+            type: "friend_request",
           }),
         });
 
@@ -102,7 +101,6 @@ const ProfilePageRight = ({ userId }) => {
       setRequestSent(false);
     }
   };
-
 
   const removeFriendFromList = async () => {
     setRequestSent(true);
