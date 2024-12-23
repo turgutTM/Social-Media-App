@@ -5,7 +5,7 @@ import User from "../../../models/User";
 
 export const POST = async (request) => {
   await connect();
-  const { receiverId, senderId, type } = await request.json();
+  const { receiverId, senderId, type,postID } = await request.json();
 
   try {
     const sender = await User.findById(senderId);
@@ -28,7 +28,8 @@ export const POST = async (request) => {
       content: {
         text: content.text,
         photo: content.photo
-      }
+      },
+      postID
     });
 
     await newNotification.save();

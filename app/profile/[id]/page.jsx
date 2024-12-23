@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import LeftMenu from "../../components/LeftMenu";
-import RIghtMenu from "../../components/RIghtMenu";
+import RightMenu from "../../components/RightMenu";
 import ProfilePageFeed from "../../components/ProfilePageFeed";
 import { useParams } from "next/navigation";
 import ProfilePageRight from "../../components/ProfilePageRIght";
@@ -103,11 +103,15 @@ const ProfilePage = () => {
                 <p className="text-sm">Posts</p>
               </div>
               <div className="flex flex-col">
-                <p className="flex justify-center font-semibold">{user.follows.length}</p>
+                <p className="flex justify-center font-semibold">
+                  {user.follows.length}
+                </p>
                 <p className="text-sm"> Followers</p>
               </div>
               <div className="flex flex-col">
-                <p className="flex justify-center font-semibold">{user.following.length}</p>
+                <p className="flex justify-center font-semibold">
+                  {user.following.length}
+                </p>
                 <p className="text-sm">Following</p>
               </div>
             </div>
@@ -119,7 +123,7 @@ const ProfilePage = () => {
       </div>
       <div className="hidden lg:block  w-[40%] gap-3">
         <ProfilePageRight userId={id} />
-        <RIghtMenu />
+        <RightMenu />
       </div>
     </div>
   );

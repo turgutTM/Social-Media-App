@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
   {
+    postID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+      required: true,
+    },
     receiverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -19,7 +24,7 @@ const notificationSchema = new mongoose.Schema(
     },
     content: {
       text: { type: String, required: true },
-      photo: { type: String, required: false }
+      photo: { type: String, required: false },
     },
     read: {
       type: Boolean,
@@ -32,6 +37,8 @@ const notificationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-const Notification = mongoose.models.Notification || mongoose.model("Notification", notificationSchema);
+const Notification =
+  mongoose.models.Notification ||
+  mongoose.model("Notification", notificationSchema);
 
 export default Notification;

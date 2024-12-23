@@ -118,16 +118,16 @@ const RightMenu = () => {
               </div>
               <div className="flex gap-2">
                 <button
-                  className="text-xl"
+                  className="text-[13px] bg-blue-500 hover:bg-blue-400 duration-200 text-white py-1 px-3 rounded-lg"
                   onClick={() => handleFollowRequest(request._id, "accept")}
                 >
-                  <IoMdCheckmark className="text-green-600" />
+                  <p>Confirm</p>
                 </button>
                 <button
-                  className="text-xl"
+                  className="text-[13px] bg-gray-300 hover:bg-gray-200 duration-200 py-1 px-3 rounded-lg"
                   onClick={() => handleFollowRequest(request._id, "reject")}
                 >
-                  <IoCloseSharp className="text-red-600" />
+                  <p>Delete</p>
                 </button>
               </div>
             </div>

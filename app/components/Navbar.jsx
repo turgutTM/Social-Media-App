@@ -339,16 +339,21 @@ const Navbar = () => {
           >
             {notifications.length > 0 ? (
               notifications.map((notification) => (
-                <div
-                  key={notification._id}
-                  className="p-2 hover:bg-gray-200 flex gap-2 items-center"
-                >
-                  <img
-                    className="w-8 h-8 rounded-full"
-                    src={notification.content.photo}
-                  ></img>
-                  <span className="text-sm"> {notification.content.text}</span>
-                </div>
+                <Link href={`/singlepage/${notification.postID}`}>
+                  <div
+                    key={notification._id}
+                    className="p-2 hover:bg-gray-200 rounded-lg cursor-pointer duration-200 flex gap-2 items-center"
+                  >
+                    <img
+                      className="w-8 h-8 rounded-full"
+                      src={notification.content.photo}
+                    ></img>
+                    <span className="text-sm">
+                      {" "}
+                      {notification.content.text}
+                    </span>
+                  </div>
+                </Link>
               ))
             ) : (
               <p>No notifications</p>
@@ -356,9 +361,21 @@ const Navbar = () => {
           </div>
         )}
 
-        <Link href={`/profile/${user?._id}`}>
-          <LuUser2 />
-        </Link>
+        <div
+          onClick={() => togglePath("/profile")}
+          className="relative flex items-center gap-1.5 cursor-pointer"
+        >
+          <Link href={`/profile/${user?._id}`}>
+            <p
+              className={`${currentPath === "/profile" ? "text-blue-500" : ""}`}
+            >
+              <LuUser2></LuUser2>
+            </p>
+          </Link>
+          {currentPath === "/profile" && (
+            <span className="absolute bottom-0 left-0 w-full h-1"></span>
+          )}
+        </div>
         <div className="flex border-gray-200">
           <div
             className={`flex items-center cursor-pointer p-2 rounded-full ${

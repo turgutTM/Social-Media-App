@@ -1,4 +1,3 @@
-// pages/api/posts/[postid].js
 import { NextResponse } from "next/server";
 import connect from "../../../../db";
 import Post from "../../../../models/Posts";

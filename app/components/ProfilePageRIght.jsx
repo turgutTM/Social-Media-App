@@ -405,8 +405,8 @@ const ProfilePageRight = ({ userId }) => {
                     <button
                       className={`p-2 w-full rounded-md ${
                         requestSent
-                          ? "bg-gray-500 text-white"
-                          : "bg-blue-500 text-white"
+                          ? "bg-gray-500  text-white"
+                          : "bg-blue-600 hover:bg-blue-500 duration-200 text-white"
                       }`}
                       onClick={sendFriendRequest}
                       disabled={requestSent}
