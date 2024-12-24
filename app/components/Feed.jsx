@@ -99,7 +99,7 @@ const Feed = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            postID:postID,
+            postID: postID,
             receiverId: postUserID,
             senderId: user._id,
             type: "like",

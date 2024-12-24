@@ -19,17 +19,18 @@ import {
 } from "../features/UserSlice";
 import { LiaUserFriendsSolid } from "react-icons/lia";
 import ShowFriendsModal from "../components/ShowFriendsModal";
+import Skeleton from "./Skeleton";
 
 const ProfilePageRight = ({ userId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [requestSent, setRequestSent] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const isPrivate = useSelector((state) => state.user.isPrivate);
+  const [isLoading, setIsLoading] = useState(true);
 
   const dispatch = useDispatch();
   const loggedUser = useSelector((state) => state.user.user);
@@ -54,7 +55,8 @@ const ProfilePageRight = ({ userId }) => {
       } catch (error) {
         console.error("Error fetching user:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
+      
       }
     };
 
@@ -229,15 +231,7 @@ const ProfilePageRight = ({ userId }) => {
   const openFriends = () => setIsFriendsModalOpen(true);
   const closeFriends = () => setIsFriendsModalOpen(false);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <ClipLoader size={50} color={"#123abc"} loading={loading} />
-      </div>
-    );
-  }
 
-  if (!userData) return <p>Loading...</p>;
 
   return (
     <>
@@ -246,7 +240,13 @@ const ProfilePageRight = ({ userId }) => {
           isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
         }`}
       >
-        {isBlocked ? (
+        {isLoading ? (
+          <div className="p-4">
+            {[...Array(1)].map((_, index) => (
+              <Skeleton key={index} type="profiledetail" />
+            ))}
+          </div>
+        ) : isBlocked ? (
           <div className="text-center text-red-500">You blocked this user</div>
         ) : (
           <>
@@ -284,7 +284,9 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex items-center gap-2">
               <p className="font-semibold text-xl">{userData.name}</p>
               <p
-                className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                className={`${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
               >
                 {userData.email}
               </p>
@@ -295,7 +297,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex gap-2 items-center">
               <IoLocationOutline />
               <p>
-                Living in{" "}
+                Living in {" "}
                 <span className="font-semibold">
                   {userData.live || "World"}
                 </span>
@@ -304,7 +306,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex gap-2 items-center">
               <MdOutlineSchool />
               <p>
-                Went to{" "}
+                Went to {" "}
                 <span className="font-semibold">
                   {userData.school || "World"}
                 </span>
@@ -313,7 +315,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex gap-2 items-center">
               <IoBagOutline />
               <p>
-                Works at{" "}
+                Works at {" "}
                 <span className="font-semibold">
                   {userData.worksAt || "World"}
                 </span>
@@ -322,7 +324,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex gap-2 items-center">
               <CiCalendar />
               <p>
-                Birthday:{" "}
+                Birthday: {" "}
                 <span className="font-semibold">
                   {userData.birthday
                     ? new Date(userData.birthday).toLocaleDateString("en-US")
@@ -363,7 +365,7 @@ const ProfilePageRight = ({ userId }) => {
             {isLoggedUser && (
               <div className="flex items-center justify-between">
                 <span className="font-medium text-gray-700">
-                  Private Account{" "}
+                  Private Account {" "}
                   <span className="text-xs">
                     {isPrivate
                       ? "(nobody will see your account except your friends)"
@@ -428,13 +430,14 @@ const ProfilePageRight = ({ userId }) => {
           </>
         )}
       </div>
+
       {isModalOpen && (
         <UpdateUserModal closeModal={closeModal} userData={userData} />
       )}
       {isFriendsModalOpen && (
         <ShowFriendsModal
           closeFriends={closeFriends}
-          userId={userId}
+          userId={userData.id}
           isDarkMode={isDarkMode}
         />
       )}

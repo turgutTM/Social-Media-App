@@ -106,10 +106,11 @@ const Navbar = () => {
         setDropdownSearch(false);
       }
     };
-
+  
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  
 
   const handleLogout = async () => {
     try {
