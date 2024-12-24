@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { CiCirclePlus, CiSearch, CiChat1 } from "react-icons/ci";
+import { CiSearch } from "react-icons/ci";
+import { BsChatDots } from "react-icons/bs";
+
 import { MdOutlineNightlight } from "react-icons/md";
 import { GoSun } from "react-icons/go";
 import { LuUser2 } from "react-icons/lu";
@@ -131,9 +133,23 @@ const Navbar = () => {
   };
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-  const toggleDropNotification = (e) => {
+  const toggleDropNotification = async (e) => {
     e.stopPropagation();
     setDropdownNotification((prev) => !prev);
+
+    try {
+      const response = await fetch(`/api/toggle-read/${user._id}`, {
+        method: "PUT",
+      });
+
+      if (response.ok) {
+        console.log("Notifications marked as read");
+      } else {
+        console.error("Failed to mark notifications as read");
+      }
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
+    }
   };
 
   const handleSearchInputChange = (event) => {
@@ -315,19 +331,24 @@ const Navbar = () => {
         <CiSearch className="text-gray-500 mr-2" />
       </div>
       <div className="flex ml-32 gap-7 items-center relative">
-        <IoChatboxOutline
-          onClick={handleToggleChat}
-          className="cursor-pointer"
-        />
+        <BsChatDots onClick={handleToggleChat} className="cursor-pointer" />
         <div>
           <RiNotification2Line
-            onClick={toggleDropNotification}
+            onClick={(e) => {
+              toggleDropNotification(e);
+            }}
             className="cursor-pointer flex"
           />
 
-          <span className="absolute bottom-4 ml-2 right-42 w-2 h-2 text-xs font-bold text-white bg-red-600 p-2 rounded-full flex items-center justify-center">
-            {notifications.length}
-          </span>
+          {Array.isArray(notifications) &&
+            notifications.some((notification) => !notification.read) && (
+              <span className="absolute bottom-4 ml-2 right-42 w-2 h-2 text-xs font-bold text-white bg-red-600 p-2 rounded-full flex items-center justify-center">
+                {
+                  notifications.filter((notification) => !notification.read)
+                    .length
+                }
+              </span>
+            )}
         </div>
 
         {dropdownNotification && (

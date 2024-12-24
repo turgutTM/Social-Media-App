@@ -5,7 +5,7 @@ import User from "../../../models/User";
 
 export const POST = async (request) => {
   await connect();
-  const { receiverId, senderId, type,postID } = await request.json();
+  const { receiverId, senderId, type, postID } = await request.json();
 
   try {
     const sender = await User.findById(senderId);
@@ -27,9 +27,9 @@ export const POST = async (request) => {
       type,
       content: {
         text: content.text,
-        photo: content.photo
+        photo: content.photo,
       },
-      postID
+      postID,
     });
 
     await newNotification.save();
@@ -54,11 +54,20 @@ function createNotificationContent(type, senderName, senderPhoto) {
     case "like":
       return { text: `${senderName} liked your post`, photo: senderPhoto };
     case "comment":
-      return { text: `${senderName} commented on your post`, photo: senderPhoto };
+      return {
+        text: `${senderName} commented on your post`,
+        photo: senderPhoto,
+      };
     case "friend_request":
-      return { text: `${senderName} sent you a friend request`, photo: senderPhoto };
+      return {
+        text: `${senderName} sent you a friend request`,
+        photo: senderPhoto,
+      };
     case "follow":
-      return { text: `${senderName} started following you`, photo: senderPhoto };
+      return {
+        text: `${senderName} started following you`,
+        photo: senderPhoto,
+      };
     default:
       return { text: "You have a new notification", photo: senderPhoto };
   }

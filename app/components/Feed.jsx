@@ -26,6 +26,7 @@ const Feed = () => {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingComment, setIsLoadingComment] = useState(false);
 
   const user = useSelector((state) => state.user.user);
 
@@ -98,6 +99,7 @@ const Feed = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            postID:postID,
             receiverId: postUserID,
             senderId: user._id,
             type: "like",
@@ -187,10 +189,10 @@ const Feed = () => {
   };
 
   const handleViewComments = async (postID) => {
-    setIsLoading(true);
+    setIsLoadingComment(true);
     if (activeCommentsPostID === postID) {
       setActiveCommentsPostID(null);
-      setIsLoading(false);
+      setIsLoadingComment(false);
     } else {
       setActiveCommentsPostID(postID);
       try {
@@ -204,7 +206,7 @@ const Feed = () => {
       } catch (error) {
         console.error("Error fetching comments:", error);
       }
-      setIsLoading(false);
+      setIsLoadingComment(false);
     }
   };
 
@@ -357,31 +359,41 @@ const Feed = () => {
 
             {activeCommentsPostID === post._id && (
               <div className="mt-4 flex flex-col gap-3">
-                <div className="mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin max-h-60">
-                  {comments.map((comment, index) => (
-                    <div key={index} className="flex items-center gap-2 mb-1">
-                      <img
-                        src={
-                          comment?.user?.profilePhoto ||
-                          "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-                        }
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <div>
-                        <span className="font-medium flex gap-1 items-center">
-                          {comment.user?.name}
-                          {post?.userID === comment?.userID && (
-                            <span className="text-[10px] mt-1 text-red-500">
-                              • Author
-                            </span>
-                          )}
-                        </span>
-                        <p className="text-sm">{comment.comment}</p>
+                {isLoadingComment ? (
+                  <div className="flex justify-center items-center h-[7rem]">
+                    <ClipLoader
+                      size={20}
+                      color={"#123abc"}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin max-h-60">
+                    {comments.map((comment, index) => (
+                      <div key={index} className="flex items-center gap-2 mb-1">
+                        <img
+                          src={
+                            comment?.user?.profilePhoto ||
+                            "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                          }
+                          alt="Profile"
+                          className="w-8 h-8 rounded-full"
+                        />
+                        <div>
+                          <span className="font-medium flex gap-1 items-center">
+                            {comment.user?.name}
+                            {post?.userID == comment?.userID && (
+                              <span className="text-[10px] mt-1 text-red-500">
+                                • Author
+                              </span>
+                            )}
+                          </span>
+                          <p className="text-sm">{comment.comment}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 <form
                   onSubmit={(e) => handleSendComment(e, post._id, post.userID)}

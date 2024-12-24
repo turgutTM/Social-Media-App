@@ -84,7 +84,7 @@ const AddPost = () => {
             isDarkMode
               ? "bg-gray-700 placeholder:text-gray-300"
               : "bg-gray-100 placeholder:text-gray-500"
-          } p-3 border border-transparent rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none w-full h-12 resize-none cursor-pointer transition-colors duration-300`}
+          } p-3 rounded-full w-full h-12 resize-none cursor-pointer duration-300`}
           placeholder="What's on your mind..."
           value={postContent}
           onClick={() => setShowModal(true)}

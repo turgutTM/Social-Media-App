@@ -12,9 +12,11 @@ import "react-toastify/dist/ReactToastify.css";
 import UpdatePostModal from "../components/UpdatePostModal";
 import { CiLock } from "react-icons/ci";
 import { ClipLoader } from "react-spinners";
+import Skeleton from "./Skeleton";
 
 const ProfilePageFeed = ({ userId }) => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
+  const [isLoadingComment,setIsLoadingComment] =useState(false)
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState(null);
   const [likedPosts, setLikedPosts] = useState({});
@@ -54,7 +56,7 @@ const ProfilePageFeed = ({ userId }) => {
       } catch (error) {
         console.error("Error fetching user data:", error);
         setCanViewProfile(false);
-      }
+      } 
     };
 
     const fetchPosts = async () => {
@@ -74,9 +76,12 @@ const ProfilePageFeed = ({ userId }) => {
           localStorage.setItem("likedPosts", JSON.stringify(userLikedPosts));
         } else {
           console.error("Failed to fetch posts");
+          
         }
       } catch (error) {
         console.error("Error fetching posts:", error);
+      } finally {
+        setIsLoading(false)
       }
     };
 
@@ -122,12 +127,6 @@ const ProfilePageFeed = ({ userId }) => {
     } catch (error) {
       console.error("Error liking/unliking post:", error);
     }
-  };
-  const handleCommentChange = (postID, value) => {
-    setComments((prevComments) => ({
-      ...prevComments,
-      [postID]: value,
-    }));
   };
 
   const handleDelete = async (postID) => {
@@ -188,10 +187,10 @@ const ProfilePageFeed = ({ userId }) => {
   };
 
   const handleViewComments = async (postID) => {
-    setIsLoading(true);
+    setIsLoadingComment(true);
     if (activeCommentsPostID === postID) {
       setActiveCommentsPostID(null);
-      setIsLoading(false);
+      setIsLoadingComment(false);
     } else {
       setActiveCommentsPostID(postID);
       try {
@@ -205,9 +204,28 @@ const ProfilePageFeed = ({ userId }) => {
       } catch (error) {
         console.error("Error fetching comments:", error);
       }
-      setIsLoading(false);
+      setIsLoadingComment(false);
     }
   };
+   const toggleModal = (postID) => {
+      setOpenModal((prevID) => (prevID === postID ? null : postID));
+    };
+  
+    const handleUpdatePost = (postID) => {
+      setOpenUpdateModal(postID);
+    };
+  
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (openModal && !event.target.closest(".modal-content")) {
+          setOpenModal(null);
+        }
+      };
+  
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }, [openModal]);
+  
 
   return (
     <div
@@ -215,12 +233,19 @@ const ProfilePageFeed = ({ userId }) => {
         darkMode ? "bg-gray-800 text-white" : "bg-white"
       }`}
     >
-      {!canViewProfile ? (
+       {isLoading ? (
+        <div className="p-4">
+          {[...Array(5)].map((_, index) => (
+            <Skeleton key={index} type="feed" />
+          ))}
+        </div>
+      ) : !canViewProfile ? (
         <div className="w-full justify-center items-center flex flex-col gap-2">
           <CiLock className="text-5xl" />
           <p>This account is private, add friend to see their content</p>
         </div>
       ) : posts.length > 0 ? (
+        
         posts.map((post) => (
           <div key={post._id} className="flex flex-col gap-5">
             <div className="flex items-center gap-4">
@@ -327,7 +352,7 @@ const ProfilePageFeed = ({ userId }) => {
             </div>
             {activeCommentsPostID === post._id && (
               <div className="mt-4 flex flex-col gap-3">
-                {isLoading ? (
+                {isLoadingComment ? (
                   <div className="flex justify-center items-center h-[7rem]">
                     <ClipLoader
                       size={20}
@@ -400,6 +425,7 @@ const ProfilePageFeed = ({ userId }) => {
       ) : (
         <p>No posts available.</p>
       )}
+      
       {openUpdateModal && (
         <UpdatePostModal
           post={posts.find((post) => post._id === openUpdateModal)}
