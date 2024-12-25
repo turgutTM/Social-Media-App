@@ -78,6 +78,3 @@ input:checked + .switch {
 input:checked + .switch::before {
   transform: translateX(20px);
 }
-
-
-

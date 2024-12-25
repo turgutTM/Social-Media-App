@@ -85,7 +85,7 @@ const Login = () => {
               </div>
             </div>
             <div className="mt-4">
-              <Link href="https://github.com/">
+              <Link href="https://github.com/turgutTM">
                 <p className="text-blue-400">github.com</p>
               </Link>
             </div>
@@ -96,7 +96,7 @@ const Login = () => {
             <h1 className="font-bold text-4xl text-black">Login</h1>
           </div>
           <form onSubmit={handleSubmit} className="flex flex-col gap-12">
-            <div className="border-b-2 border-gray-600  focus-within:border-b-blue-400 transition duration-300 ease-in-out">
+            <div className="border-b-2  border-gray-600  focus-within:border-b-blue-400 transition duration-300 ease-in-out">
               <input
                 className="focus:outline-none  w-full"
                 name="email"

@@ -37,6 +37,7 @@ const Navbar = () => {
   const [currentPath, setCurrentPath] = useState("/");
 
   const dropdownRef = useRef(null);
+  const chatRef = useRef(null);
   const searchRef = useRef(null);
   const notificationRef = useRef(null);
   console.log(likedPosts);
@@ -135,6 +136,7 @@ const Navbar = () => {
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const toggleDropNotification = async (e) => {
     e.stopPropagation();
+    togglePath("/notification");
     setDropdownNotification((prev) => !prev);
 
     try {
@@ -192,12 +194,13 @@ const Navbar = () => {
   };
 
   const handleToggleChat = () => {
+    togglePath("/chat");
     setChatOpen(!chatOpen);
   };
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-40 flex items-center p-3 ${
+      className={`fixed top-0 left-0 right-0 z-40 flex items-center p-2 ${
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
       }`}
     >
@@ -327,14 +330,21 @@ const Navbar = () => {
 
         <CiSearch className="text-gray-500 mr-2" />
       </div>
-      <div className="flex ml-32 gap-7 items-center relative">
-        <BsChatDots onClick={handleToggleChat} className="cursor-pointer" />
+      <div ref={chatRef} className="flex ml-32 gap-7 items-center relative">
+        <BsChatDots
+          onClick={handleToggleChat}
+          className={`cursor-pointer flex ${
+            currentPath === "/chat" ? "text-blue-500" : ""
+          }`}
+        />
         <div>
           <RiNotification2Line
             onClick={(e) => {
               toggleDropNotification(e);
             }}
-            className="cursor-pointer flex"
+            className={`cursor-pointer flex ${
+              currentPath === "/notification" ? "text-blue-500" : ""
+            }`}
           />
 
           {Array.isArray(notifications) &&
@@ -353,22 +363,26 @@ const Navbar = () => {
             ref={notificationRef}
             className={`absolute right-0 top-full z-50 mt-2 w-80 bg-white shadow-lg rounded-lg p-2 ${
               isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
-            }`}
+            } h-60 overflow-y-auto scrollbar-hide`}
           >
             {notifications.length > 0 ? (
               notifications.map((notification) => (
-                <Link href={`/singlepage/${notification.postID}`}>
-                  <div
-                    key={notification._id}
-                    className="p-2 hover:bg-gray-200 rounded-lg cursor-pointer duration-200 flex gap-2 items-center"
-                  >
+                <Link
+                  href={`/singlepage/${notification.postID}`}
+                  key={notification._id}
+                >
+                  <div className="p-2 hover:bg-gray-200 rounded-lg cursor-pointer duration-200 flex gap-2 items-center">
                     <img
                       className="w-8 h-8 rounded-full"
-                      src={notification.content.photo}
+                      src={notification.senderPhoto}
                     ></img>
                     <span className="text-sm">
-                      {" "}
-                      {notification.content.text}
+                      <span className="font-semibold">
+                        {notification.senderName}
+                      </span>
+                      <span className="font-thin ml-1">
+                        {notification.messageBody}
+                      </span>
                     </span>
                   </div>
                 </Link>

@@ -36,12 +36,15 @@ const Feed = () => {
         const response = await fetch("/api/all-posts");
         if (response.ok) {
           const posts = await response.json();
-          setPosts(posts);
-
+  
+          const shuffledPosts = posts.sort(() => Math.random() - 0.5);
+  
+          setPosts(shuffledPosts);
+  
           const storedLikes =
             JSON.parse(localStorage.getItem("likedPosts")) || {};
           const userLikedPosts = {};
-          posts.forEach((post) => {
+          shuffledPosts.forEach((post) => {
             userLikedPosts[post._id] = post.likedBy.includes(user._id);
           });
           setLikedPosts(userLikedPosts);
@@ -55,9 +58,10 @@ const Feed = () => {
         setIsLoading(false);
       }
     };
-
+  
     fetchPosts();
   }, [user._id]);
+  
 
   const handleLike = async (postID, postUserID) => {
     const isLiked = likedPosts[postID];

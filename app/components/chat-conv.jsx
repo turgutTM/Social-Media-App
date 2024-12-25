@@ -8,7 +8,11 @@ import Skeleton from "./Skeleton";
 
 const socket = io();
 
-const Chatconv = ({ selectedProfileId, selectedProfileData, setLastMessageTime }) => {
+const Chatconv = ({
+  selectedProfileId,
+  selectedProfileData,
+  setLastMessageTime,
+}) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +31,9 @@ const Chatconv = ({ selectedProfileId, selectedProfileData, setLastMessageTime }
   useEffect(() => {
     socket.on("receive_message", (newMessage) => {
       setMessages((prevMessages) => {
-        if (prevMessages.some((msg) => msg.timestamp === newMessage.timestamp)) {
+        if (
+          prevMessages.some((msg) => msg.timestamp === newMessage.timestamp)
+        ) {
           return prevMessages;
         }
         return [...prevMessages, newMessage];
@@ -55,7 +61,9 @@ const Chatconv = ({ selectedProfileId, selectedProfileData, setLastMessageTime }
 
           if (filteredMessages.length > 0) {
             const lastMessage = filteredMessages[filteredMessages.length - 1];
-            const formattedTimestamp = new Date(lastMessage.timestamp).toLocaleTimeString([], {
+            const formattedTimestamp = new Date(
+              lastMessage.timestamp
+            ).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             });
@@ -119,7 +127,9 @@ const Chatconv = ({ selectedProfileId, selectedProfileData, setLastMessageTime }
       });
 
       if (response.ok) {
-        setMessages((prev) => prev.filter((msg) => !messageIds.includes(msg._id)));
+        setMessages((prev) =>
+          prev.filter((msg) => !messageIds.includes(msg._id))
+        );
         console.log("Messages marked as deleted");
       } else {
         console.error("Failed to delete messages");
@@ -145,7 +155,9 @@ const Chatconv = ({ selectedProfileId, selectedProfileData, setLastMessageTime }
             alt="Computer Messaging"
             className="w-1/2 h-auto"
           />
-          <p className="text-gray-500 mt-4">Choose someone and start a conversation</p>
+          <p className="text-gray-500 mt-4">
+            Choose someone and start a conversation
+          </p>
         </div>
       ) : loading ? (
         <Skeleton type="chatconv" />
@@ -194,12 +206,16 @@ const Chatconv = ({ selectedProfileId, selectedProfileData, setLastMessageTime }
                 <div
                   key={msg._id || msg.timestamp}
                   className={`flex ${
-                    msg.senderId.toString() === user._id.toString() ? "justify-end" : "justify-start"
+                    msg.senderId.toString() === user._id.toString()
+                      ? "justify-end"
+                      : "justify-start"
                   }`}
                 >
                   <div
                     className={`max-w-[38rem] p-3 rounded-2xl text-white ${
-                      msg.senderId.toString() === user._id.toString() ? "bg-[#4b4b4b]" : "bg-blue-500"
+                      msg.senderId.toString() === user._id.toString()
+                        ? "bg-[#4b4b4b]"
+                        : "bg-blue-500"
                     } overflow-auto break-words`}
                   >
                     <p>{msg.content}</p>

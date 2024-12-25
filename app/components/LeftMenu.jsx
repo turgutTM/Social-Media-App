@@ -1,64 +1,51 @@
 "use client";
 import React from "react";
-import { RxActivityLog } from "react-icons/rx";
-import { SiMarketo } from "react-icons/si";
-import { MdOutlineEmojiEvents } from "react-icons/md";
-import { IoAlbumsOutline } from "react-icons/io5";
-import { LiaPhotoVideoSolid } from "react-icons/lia";
-import { IoNewspaperOutline } from "react-icons/io5";
-import { MdOutlinePlayLesson } from "react-icons/md";
-import { IoListSharp } from "react-icons/io5";
-import { IoSettingsOutline } from "react-icons/io5";
 import { BsThreeDots } from "react-icons/bs";
 import { useSelector } from "react-redux";
+import Link from "next/link";
 
 const LeftMenu = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
-
-  const menuItems = [
-    { icon: <RxActivityLog />, label: "Activity" },
-    { icon: <SiMarketo />, label: "Marketplace" },
-    { icon: <MdOutlineEmojiEvents />, label: "Events" },
-    { icon: <IoAlbumsOutline />, label: "Albums" },
-    { icon: <LiaPhotoVideoSolid />, label: "Videos" },
-    { icon: <IoNewspaperOutline />, label: "News" },
-    { icon: <MdOutlinePlayLesson />, label: "Courses" },
-    { icon: <IoListSharp />, label: "Lists" },
-    { icon: <IoSettingsOutline />, label: "Settings" },
-  ];
+  const user = useSelector((state) =>state.user.user)
 
   return (
     <div className="flex flex-col gap-6">
-      <div
-        className={`flex flex-col border rounded gap-4 p-6 shadow-md transition-colors duration-300 
-        ${isDarkMode ? "text-white bg-gray-800 border-gray-700" : "bg-white text-gray-800 border-gray-200"}`}
+     <div
+        className={`flex flex-col items-center rounded-md h-36 shadow-md transition-colors duration-300 relative
+        ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}
       >
-        <h2 className="text-xl font-semibold pb-2 border-b border-gray-300 dark:border-gray-600 mb-2">
-          Menu
-        </h2>
-        <ul className="flex flex-col gap-3">
-          {menuItems.map((item, index) => (
-            <li
-              key={index}
-              className={`
-                flex items-center gap-3 text-sm font-medium p-2 rounded-md cursor-pointer transition-colors duration-200
-                ${
-                  isDarkMode
-                    ? "hover:bg-white hover:text-black"
-                    : "hover:bg-gray-300 hover:text-gray-800"
-                }
-              `}
-            >
-              {item.icon}
-              <span className="flex-1">
-                {item.label}{" "}
-                <span className="text-xs text-gray-500">(not available)</span>
-              </span>
-            </li>
-          ))}
-        </ul>
+      
+        <div className="w-full h-20 rounded-md overflow-hidden">
+          <img
+            src={
+              user.coverPhoto ||
+               "https://images.rawpixel.com/image_social_landscape/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvdjU0NmJhdGNoMy1teW50LTM0LWJhZGdld2F0ZXJjb2xvcl8xLmpwZw.jpg"
+            }
+            alt="Cover Photo"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        <div className="absolute top-26 transform translate-y-1/2">
+        <Link href={`/profile/${user._id}`}>
+          <img
+            src={
+              user.profilePhoto ||
+             "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+            }
+            alt="Profile Photo"
+            className="w-16 h-16 cursor-pointer rounded-full object-cover border border-white "
+          />
+          </Link>
+        </div>
+        
+        <Link  href={`/profile/${user._id}`}>
+        <div className="mt-6 gap-1 cursor-pointer flex text-center">
+          <p className="text-md font-semibold">{user.name || "User Name"}</p>
+          <p className="text-md font-semibold">{user.surname || "User Name"}</p>
+        </div>
+        </Link>
       </div>
-
       <div
         className={`flex flex-col p-4 rounded-md shadow-md gap-4 transition-colors duration-300
         ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}
