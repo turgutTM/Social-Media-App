@@ -21,13 +21,10 @@ const FriendsPosts = () => {
   const [comments, setComments] = useState({});
   const [activeCommentsPostID, setActiveCommentsPostID] = useState(null);
   const router = useRouter();
+  const [isLoadingComment, setIsLoadingComment] = useState(false);
+   const [isLoading, setIsLoading] = useState(true);
+  const [commentText, setCommentText] = useState("");
 
-  const handleCommentChange = (postID, value) => {
-    setComments((prevComments) => ({
-      ...prevComments,
-      [postID]: value,
-    }));
-  };
   useEffect(() => {
     const fetchFriendsPosts = async () => {
       try {
@@ -100,15 +97,11 @@ const FriendsPosts = () => {
   const handleMouseLeave = () => {
     setHoveredUser(null);
   };
-  const handleSendComment = async (e, postID) => {
+  const handleSendComment = async (e, postID, postUserID) => {
     e.preventDefault();
-    const commentText = comments[postID].trim();
-    if (!commentText) {
-      toast.error("Comment cannot be empty!");
-      return;
-    }
+
     try {
-      const response = await fetch("/api/add-comment", {
+      const response = await fetch("/api/share-comment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,30 +115,28 @@ const FriendsPosts = () => {
 
       if (response.ok) {
         const result = await response.json();
-
-        setFriendsPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post._id === postID
-              ? {
-                  ...post,
-                  comments: [
-                    ...post.comments,
-                    {
-                      name: user.name,
-                      profilePhoto: user.profilePhoto,
-                      comment: result.comment.comment,
-                    },
-                  ],
-                }
-              : post
-          )
-        );
-        setComments((prevComments) => ({
-          ...prevComments,
-          [postID]: "",
-        }));
-
+        setComments((prevComments) => [...prevComments, result]);
+        setCommentText("");
         toast.success("Comment added successfully!");
+
+        if (user._id !== postUserID) {
+          const notifyResponse = await fetch("/api/send-notification", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              postID: postID,
+              receiverId: postUserID,
+              senderId: user._id,
+              type: "comment",
+            }),
+          });
+
+          if (!notifyResponse.ok) {
+            console.error("Failed to send notification");
+          }
+        }
       } else {
         console.error("Failed to add comment");
         toast.error("Failed to add comment.");
@@ -157,25 +148,24 @@ const FriendsPosts = () => {
   };
 
   const handleViewComments = async (postID) => {
+    setIsLoadingComment(true);
     if (activeCommentsPostID === postID) {
       setActiveCommentsPostID(null);
+      setIsLoadingComment(false);
     } else {
       setActiveCommentsPostID(postID);
       try {
-        const response = await fetch(`/api/comments/${postID}`);
+        const response = await fetch(`/api/post-comments/${postID}`);
         if (response.ok) {
           const commentsData = await response.json();
-          setFriendsPosts((prevPosts) =>
-            prevPosts.map((post) =>
-              post._id === postID ? { ...post, comments: commentsData } : post
-            )
-          );
+          setComments(commentsData);
         } else {
           console.error("Failed to fetch comments");
         }
       } catch (error) {
         console.error("Error fetching comments:", error);
       }
+      setIsLoadingComment(false);
     }
   };
 
@@ -343,7 +333,7 @@ const FriendsPosts = () => {
                 >
                   <FaRegComments className="text-lg group-hover:text-orange-300 duration-150" />
                   <span className="text-xs font-medium">
-                    {post.comments?.length || 0} Comments
+                    {post.commentCount || 0} Comments
                   </span>
                 </div>
                 <div
@@ -359,41 +349,44 @@ const FriendsPosts = () => {
 
             {activeCommentsPostID === post._id && (
               <div className="mt-4 flex flex-col gap-3">
-                <div
-                  className={`mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin ${
-                    post.comments.length > 3 ? "max-h-60" : ""
-                  }`}
-                >
-                  {post.comments &&
-                    post.comments.map((comment, index) => (
+                {isLoadingComment ? (
+                  <div className="flex justify-center items-center h-[7rem]">
+                    <ClipLoader
+                      size={20}
+                      color={"#123abc"}
+                      isLoadingComment={isLoadingComment}
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin max-h-60">
+                    {comments.map((comment, index) => (
                       <div key={index} className="flex items-center gap-2 mb-1">
                         <img
                           src={
-                            comment.profilePhoto ||
+                            comment?.user?.profilePhoto ||
                             "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                           }
                           alt="Profile"
                           className="w-8 h-8 rounded-full"
                         />
                         <div>
-                          {post.userID && user._id && (
-                            <span className="font-medium flex gap-1 items-center">
-                              {comment?.name}{" "}
-                              {post.userID?.toString() === user._id && (
-                                <span className="text-[10px] mt-1 text-red-500">
-                                  • Author
-                                </span>
-                              )}
-                            </span>
-                          )}
+                          <span className="font-medium flex gap-1 items-center">
+                            {comment.user?.name}
+                            {post?.userID == comment?.userID && (
+                              <span className="text-[10px] mt-1 text-red-500">
+                                • Author
+                              </span>
+                            )}
+                          </span>
                           <p className="text-sm">{comment.comment}</p>
                         </div>
                       </div>
                     ))}
-                </div>
+                  </div>
+                )}
 
                 <form
-                  onSubmit={(e) => handleSendComment(e, post._id)}
+                  onSubmit={(e) => handleSendComment(e, post._id, post.userID)}
                   className="flex items-center gap-4"
                 >
                   <img
@@ -404,21 +397,17 @@ const FriendsPosts = () => {
                     alt="User Profile"
                     className="w-10 h-10 rounded-full"
                   />
-
                   <input
                     type="text"
-                    value={comments[post._id] || ""}
-                    onChange={(e) =>
-                      handleCommentChange(post._id, e.target.value)
-                    }
                     placeholder="Write a comment..."
                     className={`flex-1 p-2 focus:outline-none rounded-lg ${
                       isDarkMode
                         ? "bg-gray-800 text-white"
                         : "bg-gray-100 text-black"
                     }`}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
                   />
-
                   <button
                     type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"

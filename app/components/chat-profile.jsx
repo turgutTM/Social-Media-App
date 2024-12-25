@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { IoSearch } from "react-icons/io5";
 import { LiaCheckDoubleSolid } from "react-icons/lia";
 import { useSelector } from "react-redux";
+import Skeleton from "./Skeleton";
 
 const Chatprofile = ({
   setSelectedProfileId,
@@ -12,10 +13,12 @@ const Chatprofile = ({
   const [friends, setFriends] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [lastMessageData, setLastMessageData] = useState({});
+  const [loading, setLoading] = useState(true); // Add loading state
   const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
     const fetchFriendsAndLastMessages = async () => {
+      setLoading(true); // Start loading
       try {
         const response = await fetch(`/api/all-friends/${user._id}`);
         if (response.ok) {
@@ -28,10 +31,6 @@ const Chatprofile = ({
             );
             if (lastMessageResponse.ok) {
               const lastMessageData = await lastMessageResponse.json();
-              console.log(
-                `Last message data for friend ${friend._id}:`,
-                lastMessageData
-              );
               return {
                 friendId: friend._id,
                 lastMessageTime: lastMessageData.lastMessageTime,
@@ -52,13 +51,14 @@ const Chatprofile = ({
               lastMessageMap[friendId] = { lastMessageTime, lastMessage };
             }
           );
-          console.log("Last message map:", lastMessageMap);
           setLastMessageData(lastMessageMap);
         } else {
           console.error("Failed to fetch friends");
         }
       } catch (error) {
         console.error("Error fetching friends:", error);
+      } finally {
+        setLoading(false); // End loading
       }
     };
 
@@ -108,7 +108,9 @@ const Chatprofile = ({
       </div>
 
       <div className="gap-8 flex flex-col overflow-y-auto scrollbar-hide">
-        {filteredFriends.length > 0 ? (
+        {loading ? ( 
+          [...Array(7)].map((_, index) => <Skeleton key={index} type="chatprofile" />)
+        ) : filteredFriends.length > 0 ? (
           filteredFriends.map((friend) => (
             <div
               key={friend._id}

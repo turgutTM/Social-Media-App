@@ -4,31 +4,34 @@ import { LuVideo } from "react-icons/lu";
 import { PiDotsThreeOutlineFill } from "react-icons/pi";
 import { useSelector } from "react-redux";
 import io from "socket.io-client";
+import Skeleton from "./Skeleton";
 
 const socket = io();
 
-const Chatconv = ({
-  selectedProfileId,
-  selectedProfileData,
-  setLastMessageTime,
-}) => {
+const Chatconv = ({ selectedProfileId, selectedProfileData, setLastMessageTime }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const user = useSelector((state) => state.user.user);
   const messagesEndRef = useRef(null);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
     socket.on("receive_message", (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessages((prevMessages) => {
+        if (prevMessages.some((msg) => msg.timestamp === newMessage.timestamp)) {
+          return prevMessages;
+        }
+        return [...prevMessages, newMessage];
+      });
       scrollToBottom();
     });
 
@@ -37,22 +40,22 @@ const Chatconv = ({
 
   useEffect(() => {
     const fetchMessages = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
           `/api/get-message?senderId=${user._id}&receiverId=${selectedProfileId}`
         );
         if (response.ok) {
           const data = await response.json();
-          const filteredMessages = data.filter(
-            (msg) => !(msg.deletedBy && msg.deletedBy.includes(user._id))
-          );
+          const filteredMessages = data.map((msg) => ({
+            ...msg,
+            senderId: msg.sender?._id || msg.senderId,
+          }));
           setMessages(filteredMessages);
 
           if (filteredMessages.length > 0) {
             const lastMessage = filteredMessages[filteredMessages.length - 1];
-            const formattedTimestamp = new Date(
-              lastMessage.timestamp
-            ).toLocaleTimeString([], {
+            const formattedTimestamp = new Date(lastMessage.timestamp).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             });
@@ -63,6 +66,8 @@ const Chatconv = ({
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -72,14 +77,15 @@ const Chatconv = ({
   }, [user._id, selectedProfileId]);
 
   const handleSendMessage = async () => {
-    if (message.trim() !== "") {
-      const newMessage = {
-        senderId: user._id,
-        receiverId: selectedProfileId,
-        content: message,
-        timestamp: new Date().toISOString(),
-      };
+    if (!message.trim()) return;
+    const newMessage = {
+      senderId: user._id,
+      receiverId: selectedProfileId,
+      content: message,
+      timestamp: new Date().toISOString(),
+    };
 
+    try {
       const response = await fetch("/api/send-message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,10 +93,13 @@ const Chatconv = ({
       });
 
       if (response.ok) {
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
         socket.emit("send_message", newMessage);
         setMessage("");
         scrollToBottom();
       }
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
   };
 
@@ -110,9 +119,7 @@ const Chatconv = ({
       });
 
       if (response.ok) {
-        setMessages((prev) =>
-          prev.filter((msg) => !messageIds.includes(msg._id))
-        );
+        setMessages((prev) => prev.filter((msg) => !messageIds.includes(msg._id)));
         console.log("Messages marked as deleted");
       } else {
         console.error("Failed to delete messages");
@@ -138,10 +145,10 @@ const Chatconv = ({
             alt="Computer Messaging"
             className="w-1/2 h-auto"
           />
-          <p className="text-gray-500 mt-4">
-            Choose someone and start a conversation
-          </p>
+          <p className="text-gray-500 mt-4">Choose someone and start a conversation</p>
         </div>
+      ) : loading ? (
+        <Skeleton type="chatconv" />
       ) : (
         <>
           <div>
@@ -183,16 +190,16 @@ const Chatconv = ({
               )}
             </div>
             <div className="p-4 flex flex-col gap-3 h-[28.3rem] overflow-y-auto scrollbar-hide">
-              {messages.map((msg, index) => (
+              {messages.map((msg) => (
                 <div
-                  key={index}
+                  key={msg._id || msg.timestamp}
                   className={`flex ${
-                    msg.senderId === user._id ? "justify-end" : "justify-start"
+                    msg.senderId.toString() === user._id.toString() ? "justify-end" : "justify-start"
                   }`}
                 >
                   <div
                     className={`max-w-[38rem] p-3 rounded-2xl text-white ${
-                      msg.senderId === user._id ? "bg-[#4b4b4b]" : "bg-blue-500"
+                      msg.senderId.toString() === user._id.toString() ? "bg-[#4b4b4b]" : "bg-blue-500"
                     } overflow-auto break-words`}
                   >
                     <p>{msg.content}</p>
@@ -212,7 +219,12 @@ const Chatconv = ({
               placeholder="Type a message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
             />
             <button
               className="text-2xl text-blue-500 p-2"

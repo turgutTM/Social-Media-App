@@ -106,11 +106,10 @@ const Navbar = () => {
         setDropdownSearch(false);
       }
     };
-  
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  
 
   const handleLogout = async () => {
     try {
@@ -203,7 +202,7 @@ const Navbar = () => {
       }`}
     >
       <div className="flex ml-48 text-3xl font-bold text-blue-500">
-        <Link href="/">
+        <Link onClick={() => togglePath("/")} href="/">
           <img className="w-14" src="/imageTugu.png"></img>
         </Link>
       </div>
@@ -244,13 +243,10 @@ const Navbar = () => {
           onClick={() => togglePath("/stories")}
           className="relative flex items-center gap-1.5 cursor-pointer"
         >
-          <Link href="/stories">
-            <p
-              className={`${currentPath === "/stories" ? "text-blue-500" : ""}`}
-            >
-              Stories
-            </p>
-          </Link>
+          <p className={`${currentPath === "/stories" ? "text-blue-500" : ""}`}>
+            Stories
+          </p>
+
           {currentPath === "/stories" && (
             <span className="absolute bottom-0 left-0 w-full h-1"></span>
           )}

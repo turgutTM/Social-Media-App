@@ -56,7 +56,6 @@ const ProfilePageRight = ({ userId }) => {
         console.error("Error fetching user:", error);
       } finally {
         setIsLoading(false);
-      
       }
     };
 
@@ -76,23 +75,6 @@ const ProfilePageRight = ({ userId }) => {
 
       if (response.ok) {
         dispatch(addFriendRequest(userId));
-
-        const notificationResponse = await fetch("/api/send-notification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            receiverId: userId,
-            senderId: loggedUserId,
-            type: "friend_request",
-          }),
-        });
-
-        if (!notificationResponse.ok) {
-          const error = await notificationResponse.json();
-          console.error("Failed to send notification:", error.message);
-        }
       } else {
         const error = await response.json();
         console.error("Error sending friend request:", error.message);
@@ -231,8 +213,6 @@ const ProfilePageRight = ({ userId }) => {
   const openFriends = () => setIsFriendsModalOpen(true);
   const closeFriends = () => setIsFriendsModalOpen(false);
 
-
-
   return (
     <>
       <div
@@ -284,9 +264,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex items-center gap-2">
               <p className="font-semibold text-xl">{userData.name}</p>
               <p
-                className={`${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
+                className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
               >
                 {userData.email}
               </p>
@@ -297,7 +275,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex gap-2 items-center">
               <IoLocationOutline />
               <p>
-                Living in {" "}
+                Living in{" "}
                 <span className="font-semibold">
                   {userData.live || "World"}
                 </span>
@@ -306,7 +284,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex gap-2 items-center">
               <MdOutlineSchool />
               <p>
-                Went to {" "}
+                Went to{" "}
                 <span className="font-semibold">
                   {userData.school || "World"}
                 </span>
@@ -315,7 +293,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex gap-2 items-center">
               <IoBagOutline />
               <p>
-                Works at {" "}
+                Works at{" "}
                 <span className="font-semibold">
                   {userData.worksAt || "World"}
                 </span>
@@ -324,7 +302,7 @@ const ProfilePageRight = ({ userId }) => {
             <div className="flex gap-2 items-center">
               <CiCalendar />
               <p>
-                Birthday: {" "}
+                Birthday:{" "}
                 <span className="font-semibold">
                   {userData.birthday
                     ? new Date(userData.birthday).toLocaleDateString("en-US")
@@ -365,7 +343,7 @@ const ProfilePageRight = ({ userId }) => {
             {isLoggedUser && (
               <div className="flex items-center justify-between">
                 <span className="font-medium text-gray-700">
-                  Private Account {" "}
+                  Private Account{" "}
                   <span className="text-xs">
                     {isPrivate
                       ? "(nobody will see your account except your friends)"
@@ -437,7 +415,7 @@ const ProfilePageRight = ({ userId }) => {
       {isFriendsModalOpen && (
         <ShowFriendsModal
           closeFriends={closeFriends}
-          userId={userData.id}
+          userId={userData._id}
           isDarkMode={isDarkMode}
         />
       )}
