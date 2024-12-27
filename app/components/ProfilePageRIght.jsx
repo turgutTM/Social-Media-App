@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { IoLocationOutline } from "react-icons/io5";
 import { MdOutlineSchool } from "react-icons/md";
@@ -16,6 +16,7 @@ import {
   addFollowing,
   removeFollowing,
   toggleIsPrivate,
+  removeBlockedUser,
 } from "../features/UserSlice";
 import { LiaUserFriendsSolid } from "react-icons/lia";
 import ShowFriendsModal from "../components/ShowFriendsModal";
@@ -32,9 +33,12 @@ const ProfilePageRight = ({ userId }) => {
   const isPrivate = useSelector((state) => state.user.isPrivate);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+
   const dispatch = useDispatch();
   const loggedUser = useSelector((state) => state.user.user);
   const isDarkMode = useSelector((state) => state.user.darkMode);
+  const [otherBlockedMe, setOtherBlockedMe] = useState(false);
 
   const loggedUserId = loggedUser?._id;
   const isLoggedUser = loggedUserId === userId;
@@ -46,9 +50,18 @@ const ProfilePageRight = ({ userId }) => {
         if (response.ok) {
           const user = await response.json();
           setUserData(user);
+
           setIsFriend(loggedUser.friends.includes(userId));
+
           setIsBlocked(loggedUser.blockedUsers.includes(userId));
+
           setIsFollowing(loggedUser.following.includes(userId));
+
+          if (user.blockedUsers.includes(loggedUserId)) {
+            setOtherBlockedMe(true);
+          } else {
+            setOtherBlockedMe(false);
+          }
         } else {
           console.error("Failed to fetch user");
         }
@@ -111,6 +124,7 @@ const ProfilePageRight = ({ userId }) => {
       setRequestSent(false);
     }
   };
+
   const handleFollowClick = async () => {
     try {
       if (isFollowing) {
@@ -124,7 +138,6 @@ const ProfilePageRight = ({ userId }) => {
 
         if (response.ok) {
           setIsFollowing(false);
-
           dispatch(removeFollowing(userId));
         } else {
           const error = await response.json();
@@ -152,6 +165,7 @@ const ProfilePageRight = ({ userId }) => {
     }
   };
 
+
   const blockUser = async () => {
     try {
       const response = await fetch("/api/block-user", {
@@ -166,6 +180,15 @@ const ProfilePageRight = ({ userId }) => {
         setIsBlocked(true);
         dispatch(addBlockedUser(userId));
         console.log("User blocked successfully");
+
+        if (isFriend) {
+          removeFriendFromList();
+          dispatch(removeFriend(userId));
+        }
+        if (isFollowing) {
+          handleFollowClick(); 
+          dispatch(removeFollowing(userId));
+        }
       } else {
         const error = await response.json();
         console.error("Error blocking user:", error.message);
@@ -175,9 +198,31 @@ const ProfilePageRight = ({ userId }) => {
     }
   };
 
+  const unBlockUser = async () => {
+    try {
+      const response = await fetch("/api/remove-from-block", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: loggedUserId, unblockUserId: userId }),
+      });
+
+      if (response.ok) {
+        setIsBlocked(false);
+        dispatch(removeBlockedUser(userId));
+        console.log("User unblocked successfully");
+      } else {
+        const error = await response.json();
+        console.error("Error unblocking user:", error.message);
+      }
+    } catch (error) {
+      console.error("Error unblocking user:", error);
+    }
+  };
+
   const handlePrivateToggle = async () => {
     const newIsPrivateState = !isPrivate;
-
     try {
       const response = await fetch("/api/isprivate", {
         method: "POST",
@@ -192,12 +237,10 @@ const ProfilePageRight = ({ userId }) => {
 
       if (response.ok) {
         dispatch(toggleIsPrivate());
-
         setUserData((prevData) => ({
           ...prevData,
           isPrivate: newIsPrivateState,
         }));
-
         console.log("Privacy setting updated successfully");
       } else {
         const error = await response.json();
@@ -227,7 +270,19 @@ const ProfilePageRight = ({ userId }) => {
             ))}
           </div>
         ) : isBlocked ? (
-          <div className="text-center text-red-500">You blocked this user</div>
+          <div className="text-center flex flex-col text-red-500">
+            <p>You blocked this user</p>
+            <button
+              onClick={() => unBlockUser()}
+              className="text-blue-500 hover:underline"
+            >
+              Unblock
+            </button>
+          </div>
+        ) : otherBlockedMe ? (
+          <div className="text-center flex flex-col text-red-500">
+            <p>{userData?.name || "User"} blocked you</p>
+          </div>
         ) : (
           <>
             <div className="flex justify-between items-center">
@@ -340,6 +395,7 @@ const ProfilePageRight = ({ userId }) => {
                 <p>Joined {new Date(userData.joinedAt).toLocaleDateString()}</p>
               </div>
             </div>
+
             {isLoggedUser && (
               <div className="flex items-center justify-between">
                 <span className="font-medium text-gray-700">
@@ -396,8 +452,8 @@ const ProfilePageRight = ({ userId }) => {
 
                 <div className="flex justify-center ">
                   <button
-                    className=" text-red-500 font-semibold w-full flex justify-end"
-                    onClick={blockUser}
+                    className="text-red-500 font-semibold w-full flex justify-end"
+                    onClick={() => setIsBlockModalOpen(true)} // <- Modal Açma
                     disabled={isBlocked}
                   >
                     {isBlocked ? "User Blocked" : "Block User"}
@@ -408,6 +464,41 @@ const ProfilePageRight = ({ userId }) => {
           </>
         )}
       </div>
+
+      {isBlockModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+
+          <div
+            className={`relative p-6 rounded-lg shadow-md ${
+              isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
+            }`}
+          >
+            <h2 className="text-xl font-bold mb-4">Block User</h2>
+            <p className="mb-6">
+              Are you sure you want to block this user? You will no longer see
+              their posts.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  blockUser();
+                  setIsBlockModalOpen(false);
+                }}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full"
+              >
+                Block
+              </button>
+              <button
+                onClick={() => setIsBlockModalOpen(false)}
+                className="bg-gray-300 hover:bg-gray-400 duration-200 px-4 py-2 rounded-full"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <UpdateUserModal closeModal={closeModal} userData={userData} />

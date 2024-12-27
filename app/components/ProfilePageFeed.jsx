@@ -15,8 +15,9 @@ import { ClipLoader } from "react-spinners";
 import Skeleton from "./Skeleton";
 
 const ProfilePageFeed = ({ userId }) => {
+  const [blockStatus, setBlockStatus] = useState(null);
   const isDarkMode = useSelector((state) => state.user.darkMode);
-  const [isLoadingComment,setIsLoadingComment] =useState(false)
+  const [isLoadingComment, setIsLoadingComment] = useState(false);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState(null);
   const [likedPosts, setLikedPosts] = useState({});
@@ -33,37 +34,41 @@ const ProfilePageFeed = ({ userId }) => {
   const isLoggedUser = loggedUserId === userId;
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndPosts = async () => {
       try {
-        const response = await fetch(`/api/user/${userId}`);
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
+        setIsLoading(true);
 
-          if (
-            isLoggedUser ||
-            !userData.isPrivate ||
-            (loggedUser.friends && loggedUser.friends.includes(userId))
-          ) {
-            setCanViewProfile(true);
-          } else {
-            setCanViewProfile(false);
-          }
+        const response = await fetch(`/api/user/${userId}`);
+        if (!response.ok) throw new Error("Failed to fetch user data");
+        const userData = await response.json();
+        setUser(userData);
+
+        if (loggedUser?.blockedUsers?.includes(userId)) {
+          setBlockStatus("iBlockedUser");
+          setCanViewProfile(false);
+        } else if (userData?.blockedUsers?.includes(loggedUserId)) {
+          setBlockStatus("userBlockedMe");
+          setCanViewProfile(false);
+        } else if (
+          isLoggedUser ||
+          !userData.isPrivate ||
+          (loggedUser.friends && loggedUser.friends.includes(userId))
+        ) {
+          setCanViewProfile(true);
         } else {
-          console.error("Failed to fetch user data");
           setCanViewProfile(false);
         }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setCanViewProfile(false);
-      } 
-    };
 
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch(`/api/posts/${userId}`);
-        if (response.ok) {
-          const postsData = await response.json();
+        if (
+          !loggedUser?.blockedUsers?.includes(userId) &&
+          !userData?.blockedUsers?.includes(loggedUserId) &&
+          (isLoggedUser ||
+            !userData.isPrivate ||
+            (loggedUser.friends && loggedUser.friends.includes(userId)))
+        ) {
+          const postsRes = await fetch(`/api/posts/${userId}`);
+          if (!postsRes.ok) throw new Error("Failed to fetch posts");
+          const postsData = await postsRes.json();
           setPosts(postsData);
 
           const storedLikes =
@@ -74,24 +79,18 @@ const ProfilePageFeed = ({ userId }) => {
           });
           setLikedPosts(userLikedPosts);
           localStorage.setItem("likedPosts", JSON.stringify(userLikedPosts));
-        } else {
-          console.error("Failed to fetch posts");
-          
         }
       } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error(error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     };
 
     if (userId) {
-      fetchUser();
-      if (canViewProfile) {
-        fetchPosts();
-      }
+      fetchUserAndPosts();
     }
-  }, [userId, canViewProfile]);
+  }, [userId]);
 
   const handleLike = async (postID) => {
     const isLiked = likedPosts[postID];
@@ -207,25 +206,24 @@ const ProfilePageFeed = ({ userId }) => {
       setIsLoadingComment(false);
     }
   };
-   const toggleModal = (postID) => {
-      setOpenModal((prevID) => (prevID === postID ? null : postID));
+  const toggleModal = (postID) => {
+    setOpenModal((prevID) => (prevID === postID ? null : postID));
+  };
+
+  const handleUpdatePost = (postID) => {
+    setOpenUpdateModal(postID);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openModal && !event.target.closest(".modal-content")) {
+        setOpenModal(null);
+      }
     };
-  
-    const handleUpdatePost = (postID) => {
-      setOpenUpdateModal(postID);
-    };
-  
-    useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (openModal && !event.target.closest(".modal-content")) {
-          setOpenModal(null);
-        }
-      };
-  
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
-    }, [openModal]);
-  
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [openModal]);
 
   return (
     <div
@@ -233,11 +231,21 @@ const ProfilePageFeed = ({ userId }) => {
         darkMode ? "bg-gray-800 text-white" : "bg-white"
       }`}
     >
-       {isLoading ? (
+      {isLoading ? (
         <div className="p-4">
           {[...Array(5)].map((_, index) => (
             <Skeleton key={index} type="feed" />
           ))}
+        </div>
+      ) : blockStatus === "iBlockedUser" ? (
+        <div className="w-full justify-center items-center flex flex-col gap-2">
+          <CiLock className="text-5xl" />
+          <p>You blocked this user</p>
+        </div>
+      ) : blockStatus === "userBlockedMe" ? (
+        <div className="w-full justify-center items-center flex flex-col gap-2">
+          <CiLock className="text-5xl" />
+          <p>{user?.name || "User"} blocked you</p>
         </div>
       ) : !canViewProfile ? (
         <div className="w-full justify-center items-center flex flex-col gap-2">
@@ -245,7 +253,6 @@ const ProfilePageFeed = ({ userId }) => {
           <p>This account is private, add friend to see their content</p>
         </div>
       ) : posts.length > 0 ? (
-        
         posts.map((post) => (
           <div key={post._id} className="flex flex-col gap-5">
             <div className="flex items-center gap-4">
@@ -425,7 +432,7 @@ const ProfilePageFeed = ({ userId }) => {
       ) : (
         <p>No posts available.</p>
       )}
-      
+
       {openUpdateModal && (
         <UpdatePostModal
           post={posts.find((post) => post._id === openUpdateModal)}

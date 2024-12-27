@@ -11,7 +11,7 @@ const LeftMenu = () => {
   return (
     <div className="flex flex-col gap-6">
      <div
-        className={`flex flex-col items-center rounded-md h-36 shadow-md transition-colors duration-300 relative
+        className={`flex flex-col items-center rounded-md h-40 shadow-md transition-colors duration-300 relative
         ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}
       >
       
@@ -45,6 +45,7 @@ const LeftMenu = () => {
           <p className="text-md font-semibold">{user.surname || "User Name"}</p>
         </div>
         </Link>
+        <div className="text-sm">Your profile</div>
       </div>
       <div
         className={`flex flex-col p-4 rounded-md shadow-md gap-4 transition-colors duration-300

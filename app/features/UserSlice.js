@@ -58,6 +58,14 @@ export const userSlice = createSlice({
         state.user.blockedUsers.push(blockedUserId);
       }
     },
+    removeBlockedUser: (state, action) => {
+      const blockedUserId = action.payload;
+      if (state.user.blockedUsers) {
+        state.user.blockedUsers = state.user.blockedUsers.filter(
+          (id) => id !== blockedUserId
+        );
+      }
+    },
     acceptFriendRequest: (state, action) => {
       const { friendId } = action.payload;
       if (state.user.friendRequests) {
@@ -130,6 +138,7 @@ export const {
   removeFriend,
   addFollowing,
   removeFollowing,
+  removeBlockedUser
 } = userSlice.actions;
 
 export default userSlice.reducer;

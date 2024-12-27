@@ -13,12 +13,12 @@ const Chatprofile = ({
   const [friends, setFriends] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [lastMessageData, setLastMessageData] = useState({});
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
     const fetchFriendsAndLastMessages = async () => {
-      setLoading(true); // Start loading
+      setLoading(true);
       try {
         const response = await fetch(`/api/all-friends/${user._id}`);
         if (response.ok) {
@@ -58,7 +58,7 @@ const Chatprofile = ({
       } catch (error) {
         console.error("Error fetching friends:", error);
       } finally {
-        setLoading(false); // End loading
+        setLoading(false); 
       }
     };
 
@@ -108,8 +108,10 @@ const Chatprofile = ({
       </div>
 
       <div className="gap-8 flex flex-col overflow-y-auto scrollbar-hide">
-        {loading ? ( 
-          [...Array(7)].map((_, index) => <Skeleton key={index} type="chatprofile" />)
+        {loading ? (
+          [...Array(7)].map((_, index) => (
+            <Skeleton key={index} type="chatprofile" />
+          ))
         ) : filteredFriends.length > 0 ? (
           filteredFriends.map((friend) => (
             <div
@@ -140,8 +142,14 @@ const Chatprofile = ({
                   </p>
                 </div>
                 <p className="text-gray-400 w-full whitespace-nowrap overflow-hidden text-ellipsis">
-                  {lastMessageData[friend._id]?.lastMessage ||
-                    "No recent messages"}
+                  {lastMessageData[friend._id]?.lastMessage
+                    ? lastMessageData[friend._id].lastMessage.length > 20
+                      ? lastMessageData[friend._id].lastMessage.substring(
+                          0,
+                          20
+                        ) + "..."
+                      : lastMessageData[friend._id].lastMessage
+                    : "No recent messages"}
                 </p>
               </div>
             </div>

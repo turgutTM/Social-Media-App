@@ -130,7 +130,7 @@ const AddPost = () => {
               onChange={(e) => setPostContent(e.target.value)}
             ></textarea>
             <div className="flex gap-4 mb-6">
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-700 p-2 rounded-md transition-colors duration-300">
+              <div className="flex items-center gap-2 cursor-pointer  p-2 rounded-md ">
                 <UploadButton
                   endpoint="imageUploader"
                   className="my-custom-upload-button"

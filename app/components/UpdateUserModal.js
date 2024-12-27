@@ -52,13 +52,11 @@ const UpdateUserModal = ({ closeModal }) => {
   const handleProfilePhotoUpload = (res) => {
     console.log("Profile photo uploaded: ", res);
     setFormData((prev) => ({ ...prev, profilePhoto: res[0].url }));
-    alert("Profile Photo Upload Completed");
   };
 
   const handleCoverPhotoUpload = (res) => {
     console.log("Cover photo uploaded: ", res);
     setFormData((prev) => ({ ...prev, coverPhoto: res[0].url }));
-    alert("Cover Photo Upload Completed");
   };
 
   return (

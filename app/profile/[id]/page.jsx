@@ -7,12 +7,14 @@ import ProfilePageFeed from "../../components/ProfilePageFeed";
 import { useParams } from "next/navigation";
 import ProfilePageRight from "../../components/ProfilePageRIght";
 import { ClipLoader } from "react-spinners";
+import { useSelector } from "react-redux";
 
 const ProfilePage = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [postsData, setPostsData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const loggedUser = useSelector((state) =>state.user.user)
 
   useEffect(() => {
     if (id) {
@@ -75,7 +77,7 @@ const ProfilePage = () => {
             <img
               className="h-52 w-full object-cover"
               src={
-                user.coverPhoto ||
+                loggedUser.coverPhoto ||
                 "https://images.rawpixel.com/image_social_landscape/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvdjU0NmJhdGNoMy1teW50LTM0LWJhZGdld2F0ZXJjb2xvcl8xLmpwZw.jpg"
               }
               alt="Cover"
@@ -86,14 +88,15 @@ const ProfilePage = () => {
               <img
                 className="w-24 h-24 object-cover rounded-full border-4 "
                 src={
-                  user.profilePhoto ||
+                  loggedUser.profilePhoto ||
                   "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                 }
                 alt="Profile"
               />
             </div>
-            <div>
-              <p className="text-2xl font-medium">{user.name}</p>
+            <div className="flex gap-2 items-center">
+              <p className="text-2xl font-medium">{loggedUser.name}</p>
+              <p className="text-2xl font-medium">{loggedUser.surname}</p>
             </div>
             <div className="flex gap-4">
               <div className="flex flex-col ml-5">

@@ -34,13 +34,9 @@ export const POST = async (request) => {
       name,
       password,
       surname,
-      verificationCode,
-      isVerified: false,
     });
 
     await newUser.save();
-
-    await sendVerificationEmail(verificationCode);
 
     return new NextResponse(JSON.stringify(newUser), { status: 201 });
   } catch (error) {

@@ -26,14 +26,6 @@ export const POST = async (request) => {
       );
     }
 
-  
-    if (!user.isVerified) {
-      return new NextResponse(
-        JSON.stringify({ message: "Account not verified" }),
-        { status: 403 }
-      );
-    }
-
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {

@@ -2,8 +2,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const Register = () => {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: "",
     name: "",
@@ -43,7 +45,7 @@ const Register = () => {
         confirmPassword: "",
       });
 
-      window.location.href = `/verify-email`;
+      router.push("/login")
     } catch (error) {
       console.error(
         "Error registering user:",

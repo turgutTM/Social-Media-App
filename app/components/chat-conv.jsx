@@ -12,6 +12,7 @@ const Chatconv = ({
   selectedProfileId,
   selectedProfileData,
   setLastMessageTime,
+  initialMessage,
 }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -23,10 +24,17 @@ const Chatconv = ({
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+  useEffect(() => {
+    if (initialMessage) {
+      setMessage(initialMessage);
+    }
+  }, [initialMessage]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+
 
   useEffect(() => {
     socket.on("receive_message", (newMessage) => {

@@ -367,25 +367,20 @@ const Navbar = () => {
           >
             {notifications.length > 0 ? (
               notifications.map((notification) => (
-                <Link
-                  href={`/singlepage/${notification.postID}`}
-                  key={notification._id}
-                >
-                  <div className="p-2 hover:bg-gray-200 rounded-lg cursor-pointer duration-200 flex gap-2 items-center">
-                    <img
-                      className="w-8 h-8 rounded-full"
-                      src={notification.senderPhoto}
-                    ></img>
-                    <span className="text-sm">
-                      <span className="font-semibold">
-                        {notification.senderName}
-                      </span>
-                      <span className="font-thin ml-1">
-                        {notification.messageBody}
-                      </span>
+                <div className="p-2 hover:bg-gray-200 rounded-lg cursor-pointer duration-200 flex gap-2 items-center">
+                  <img
+                    className="w-8 h-8 rounded-full"
+                    src={notification.senderPhoto}
+                  ></img>
+                  <span className="text-sm">
+                    <span className="font-semibold">
+                      {notification.senderName}
                     </span>
-                  </div>
-                </Link>
+                    <span className="font-thin ml-1">
+                      {notification.messageBody}
+                    </span>
+                  </span>
+                </div>
               ))
             ) : (
               <p>No notifications</p>

@@ -35,7 +35,7 @@ const Login = () => {
       localStorage.setItem("token", data.token);
 
       toast.update(id, {
-        render: "Logged in successfully!",
+        render: "Logged in successfully!,redirecting it may take a few seconds",
         type: "success",
         isLoading: false,
         autoClose: 4000,
