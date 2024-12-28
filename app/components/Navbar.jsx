@@ -33,6 +33,7 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState("");
 
   const [likedPosts, setLikedPosts] = useState([]);
+  console.log(notifications);
 
   const [currentPath, setCurrentPath] = useState("/");
 
@@ -195,7 +196,7 @@ const Navbar = () => {
 
   const handleToggleChat = () => {
     togglePath("/chat");
-    setChatOpen(!chatOpen);
+    setChatOpen((prev) => !prev);
   };
 
   return (
@@ -310,10 +311,7 @@ const Navbar = () => {
                     </div>
                     <img
                       className="object-cover w-9 h-9 rounded-full"
-                      src={
-                        user.profilePhoto ||
-                        "https://images.pexels.com/photos/428364/pexels-photo-428364.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                      }
+                      src={user.profilePhoto || "defaultpicture.jpg"}
                       alt={user.name}
                     />
                   </div>
@@ -361,17 +359,23 @@ const Navbar = () => {
         {dropdownNotification && (
           <div
             ref={notificationRef}
-            className={`absolute right-0 top-full z-50 mt-2 w-80 bg-white shadow-lg rounded-lg p-2 ${
+            className={`absolute right-0 top-full z-50 mt-2 w-80 shadow-lg rounded-lg p-2 ${
               isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
-            } h-60 overflow-y-auto scrollbar-hide`}
+            } h-fit max-h-60 overflow-y-auto scrollbar-hide`}
           >
             {notifications.length > 0 ? (
               notifications.map((notification) => (
-                <div className="p-2 hover:bg-gray-200 rounded-lg cursor-pointer duration-200 flex gap-2 items-center">
+                <div
+                  key={notification._id} 
+                  className={`p-2 rounded-lg cursor-pointer duration-200 flex gap-2 items-center ${
+                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
+                  }`}
+                >
                   <img
                     className="w-8 h-8 rounded-full"
-                    src={notification.senderPhoto}
-                  ></img>
+                    src={notification.senderPhoto || "defaultpicture.jpg"}
+                    alt="Notification Sender"
+                  />
                   <span className="text-sm">
                     <span className="font-semibold">
                       {notification.senderName}
@@ -383,7 +387,11 @@ const Navbar = () => {
                 </div>
               ))
             ) : (
-              <p>No notifications</p>
+              <div className="flex justify-center items-center h-full">
+                <p className={`${isDarkMode ? "text-gray-400" : "text-black"}`}>
+                  No notifications yet
+                </p>
+              </div>
             )}
           </div>
         )}

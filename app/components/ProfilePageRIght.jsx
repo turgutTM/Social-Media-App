@@ -165,7 +165,6 @@ const ProfilePageRight = ({ userId }) => {
     }
   };
 
-
   const blockUser = async () => {
     try {
       const response = await fetch("/api/block-user", {
@@ -186,7 +185,7 @@ const ProfilePageRight = ({ userId }) => {
           dispatch(removeFriend(userId));
         }
         if (isFollowing) {
-          handleFollowClick(); 
+          handleFollowClick();
           dispatch(removeFollowing(userId));
         }
       } else {
@@ -423,7 +422,29 @@ const ProfilePageRight = ({ userId }) => {
             {!isLoggedUser && (
               <>
                 <div className="flex justify-center">
-                  {isFriend ? (
+                  {!isFriend ? (
+                    userData.friendRequests &&
+                    userData.friendRequests.includes(loggedUserId) ? (
+                      <button
+                        className="p-2 w-full rounded-md bg-gray-500 text-white"
+                        disabled
+                      >
+                        Request Sent
+                      </button>
+                    ) : (
+                      <button
+                        className={`p-2 w-full rounded-md ${
+                          requestSent
+                            ? "bg-gray-500  text-white"
+                            : "bg-blue-600 hover:bg-blue-500 duration-200 text-white"
+                        }`}
+                        onClick={sendFriendRequest}
+                        disabled={requestSent}
+                      >
+                        {requestSent ? "Request Sent" : "Add Friend"}
+                      </button>
+                    )
+                  ) : (
                     <button
                       className={`p-2 w-full rounded-md ${
                         requestSent
@@ -435,25 +456,13 @@ const ProfilePageRight = ({ userId }) => {
                     >
                       {requestSent ? "Removing..." : "Remove Friend"}
                     </button>
-                  ) : (
-                    <button
-                      className={`p-2 w-full rounded-md ${
-                        requestSent
-                          ? "bg-gray-500  text-white"
-                          : "bg-blue-600 hover:bg-blue-500 duration-200 text-white"
-                      }`}
-                      onClick={sendFriendRequest}
-                      disabled={requestSent}
-                    >
-                      {requestSent ? "Request Sent" : "Add Friend"}
-                    </button>
                   )}
                 </div>
 
                 <div className="flex justify-center ">
                   <button
                     className="text-red-500 font-semibold w-full flex justify-end"
-                    onClick={() => setIsBlockModalOpen(true)} // <- Modal Açma
+                    onClick={() => setIsBlockModalOpen(true)} 
                     disabled={isBlocked}
                   >
                     {isBlocked ? "User Blocked" : "Block User"}

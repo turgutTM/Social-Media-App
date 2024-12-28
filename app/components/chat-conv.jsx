@@ -175,7 +175,7 @@ const Chatconv = ({
             <div className="flex items-center p-2 border-b w-full gap-3 mt-1 relative">
               <div className="w-14 ">
                 <img
-                  className="w-full h-8 rounded-full"
+                  className="w-full h-8 object-cover rounded-full"
                   src={
                     selectedProfileData?.profilePhoto ||
                     "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"

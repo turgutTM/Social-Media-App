@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlineLike } from "react-icons/ai";
 import { FaRegComments } from "react-icons/fa";
+import { formatDistanceToNow } from "date-fns";
 import { RiShareForwardLine } from "react-icons/ri";
 import { useSelector } from "react-redux";
 import { BsThreeDots } from "react-icons/bs";
@@ -125,6 +126,30 @@ const ProfilePageFeed = ({ userId }) => {
       }
     } catch (error) {
       console.error("Error liking/unliking post:", error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const response = await fetch("/api/comment-delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ commentId }),
+      });
+
+      if (response.ok) {
+        setComments((prevComments) =>
+          prevComments.filter((c) => c._id !== commentId)
+        );
+        toast.success("Comment deleted successfully");
+      } else {
+        throw new Error("Failed to delete comment");
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      toast.error("Failed to delete comment");
     }
   };
 
@@ -385,6 +410,21 @@ const ProfilePageFeed = ({ userId }) => {
                             {post?.userID == comment?.userID && (
                               <span className="text-[10px] mt-1 text-red-500">
                                 • Author
+                              </span>
+                            )}
+                            <p className="text-gray-400 mt-1 ml-1 text-[10px]">
+                              {formatDistanceToNow(
+                                new Date(comment?.createdAt),
+                                { addSuffix: true }
+                              )}
+                            </p>
+                            {(post?.user?._id === loggedUserId ||
+                              comment.userID === loggedUserId) && (
+                              <span
+                                className="ml-1 mt-1 cursor-pointer hover:text-red-500 text-gray-400 text-sm duration-300"
+                                onClick={() => handleDeleteComment(comment._id)}
+                              >
+                                <MdDeleteOutline />
                               </span>
                             )}
                           </span>

@@ -63,7 +63,6 @@ const Skeleton = ({ type }) => {
               <div className="w-16 h-3 mt-3 rounded-lg bg-gray-300"></div>
             </div>
             <div className="bg-gray-300 w-8 h-3 rounded-md ml-[99px]"></div>
-
           </div>
         </div>
       </div>
@@ -77,10 +76,10 @@ const Skeleton = ({ type }) => {
           <div className="w-10 h-10 rounded-full bg-gray-300"></div>
           <div className="w-28 h-5 rounded-lg bg-gray-300"></div>
         </div>
-     <div className="flex flex-col w-full mt-11">
-     <div className="w-28  h-9 rounded-lg bg-gray-300"></div>
-     <div className="w-28 h-9 rounded-lg bg-gray-300 flex ml-[24rem]"></div>
-     </div>
+        <div className="flex flex-col w-full mt-11">
+          <div className="w-28  h-9 rounded-lg bg-gray-300"></div>
+          <div className="w-28 h-9 rounded-lg bg-gray-300 flex ml-[24rem]"></div>
+        </div>
       </div>
     );
   }

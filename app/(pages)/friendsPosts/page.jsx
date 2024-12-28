@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { AiOutlineLike } from "react-icons/ai";
 import { FaRegComments } from "react-icons/fa";
 import { RiShareForwardLine } from "react-icons/ri";
+import { formatDistanceToNow } from "date-fns";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
@@ -10,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { MdDeleteOutline } from "react-icons/md";
 
 const FriendsPosts = () => {
   const [friendsPosts, setFriendsPosts] = useState([]);
@@ -22,7 +24,7 @@ const FriendsPosts = () => {
   const [activeCommentsPostID, setActiveCommentsPostID] = useState(null);
   const router = useRouter();
   const [isLoadingComment, setIsLoadingComment] = useState(false);
-   const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [commentText, setCommentText] = useState("");
 
   useEffect(() => {
@@ -377,7 +379,23 @@ const FriendsPosts = () => {
                                 • Author
                               </span>
                             )}
+                            <p className="text-gray-400 mt-1 ml-1 text-[10px]">
+                              {formatDistanceToNow(
+                                new Date(comment?.createdAt),
+                                { addSuffix: true }
+                              )}
+                            </p>
+                            {(post.userID === user?._id ||
+                              comment.userID === user?._id) && (
+                              <span
+                                className="ml-1 mt-1 cursor-pointer hover:text-red-500 text-gray-400 text-sm duration-300"
+                                onClick={() => handleDeleteComment(comment._id)}
+                              >
+                                <MdDeleteOutline />
+                              </span>
+                            )}
                           </span>
+
                           <p className="text-sm">{comment.comment}</p>
                         </div>
                       </div>

@@ -41,6 +41,7 @@ export const POST = async (request) => {
         name: user.name,
         profilePhoto: user.profilePhoto || "/defaultpicture.jpg",
       },
+      createdAt:newComment.createdAt,
     });
 
     return new NextResponse(responseContent, { status: 201 });

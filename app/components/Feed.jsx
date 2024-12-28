@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { AiOutlineLike } from "react-icons/ai";
+import { formatDistanceToNow } from "date-fns";
 import { FaRegComments } from "react-icons/fa";
 import { RiShareForwardLine } from "react-icons/ri";
 import { BsThreeDots } from "react-icons/bs";
@@ -212,6 +213,29 @@ const Feed = () => {
       setIsLoadingComment(false);
     }
   };
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const response = await fetch("/api/comment-delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ commentId }),
+      });
+
+      if (response.ok) {
+        setComments((prevComments) =>
+          prevComments.filter((c) => c._id !== commentId)
+        );
+        toast.success("Comment deleted successfully");
+      } else {
+        throw new Error("Failed to delete comment");
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      toast.error("Failed to delete comment");
+    }
+  };
 
   const toggleModal = (postID) => {
     setOpenModal((prevID) => (prevID === postID ? null : postID));
@@ -390,7 +414,23 @@ const Feed = () => {
                                 • Author
                               </span>
                             )}
+                            <p className="text-gray-400 mt-1 ml-1 text-[10px]">
+                              {formatDistanceToNow(
+                                new Date(comment?.createdAt),
+                                { addSuffix: true }
+                              )}
+                            </p>
+                            {(post.userID === user?._id ||
+                              comment.userID === user?._id) && (
+                              <span
+                                className="ml-1 mt-1 cursor-pointer hover:text-red-500 text-gray-400 text-sm duration-300"
+                                onClick={() => handleDeleteComment(comment._id)}
+                              >
+                                <MdDeleteOutline />
+                              </span>
+                            )}
                           </span>
+
                           <p className="text-sm">{comment.comment}</p>
                         </div>
                       </div>
@@ -408,7 +448,7 @@ const Feed = () => {
                       "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                     }
                     alt="User Profile"
-                    className="w-10 h-10 rounded-full"
+                    className="w-10 h-10 object-cover rounded-full"
                   />
                   <input
                     type="text"

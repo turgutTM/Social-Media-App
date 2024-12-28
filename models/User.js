@@ -24,6 +24,7 @@ const UserSchema = new mongoose.Schema(
     },
     profilePhoto: {
       type: String,
+      default: "defaultpicture.jpg",
     },
     coverPhoto: {
       type: String,
