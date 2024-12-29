@@ -258,7 +258,7 @@ const Feed = () => {
 
   return (
     <div
-      className={`flex mb-4 ${
+      className={`flex mb-4  ${
         isDarkMode ? "bg-gray-900 text-white border-t" : "bg-white text-black"
       } flex-col p-4 shadow-md gap-14`}
     >
@@ -270,7 +270,7 @@ const Feed = () => {
         </div>
       ) : (
         posts.map((post) => (
-          <div key={post._id} className="flex flex-col gap-3">
+          <div key={post._id} className="flex  flex-col gap-3">
             <div className="flex gap-4 w-full justify-between">
               <div className="flex gap-2">
                 <img
@@ -387,12 +387,10 @@ const Feed = () => {
             {activeCommentsPostID === post._id && (
               <div className="mt-4 flex flex-col gap-3">
                 {isLoadingComment ? (
-                  <div className="flex justify-center items-center h-[7rem]">
-                    <ClipLoader
-                      size={20}
-                      color={"#123abc"}
-                      isLoading={isLoading}
-                    />
+                  <div className="flex flex-col items-start ">
+                    {[...Array(3)].map((_, index) => (
+                      <Skeleton key={index} type="comment" />
+                    ))}
                   </div>
                 ) : (
                   <div className="mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin max-h-60">

@@ -31,6 +31,7 @@ const Navbar = () => {
   const [users, setUsers] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [notifications, setNotifications] = useState("");
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
   const [likedPosts, setLikedPosts] = useState([]);
   console.log(notifications);
@@ -201,13 +202,13 @@ const Navbar = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-40 flex items-center p-2 ${
+      className={`fixed top-0 left-0 max-xl:flex-col max-lg: max-xl:gap-3 right-0 z-40 flex items-center p-2 ${
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
       }`}
     >
-      <div className="flex ml-48 text-3xl font-bold text-blue-500">
+      <div className="flex ml-48  text-3xl font-bold text-blue-500">
         <Link onClick={() => togglePath("/")} href="/">
-          <img className="w-14" src="/imageTugu.png"></img>
+          <img className="w-14 max-lg:w-4" src="/imageTugu.png"></img>
         </Link>
       </div>
       <div className="flex gap-6 ml-32">
@@ -244,15 +245,20 @@ const Navbar = () => {
         </div>
 
         <div
-          onClick={() => togglePath("/stories")}
-          className="relative flex items-center gap-1.5 cursor-pointer"
+          onMouseEnter={() => setIsTooltipVisible(true)}
+          onMouseLeave={() => setIsTooltipVisible(false)}
+          className="relative flex items-center gap-1.5 cursor-pointer "
         >
-          <p className={`${currentPath === "/stories" ? "text-blue-500" : ""}`}>
-            Stories
-          </p>
+          <p>Stories</p>
 
-          {currentPath === "/stories" && (
-            <span className="absolute bottom-0 left-0 w-full h-1"></span>
+          {isTooltipVisible && (
+            <div
+              className={`absolute top-full mt-2 w-36 left-1/2 transform -translate-x-1/2 p-2 text-sm rounded-lg shadow-md ${
+                isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-black"
+              }`}
+            >
+              Not available yet
+            </div>
           )}
         </div>
       </div>
@@ -328,7 +334,7 @@ const Navbar = () => {
 
         <CiSearch className="text-gray-500 mr-2" />
       </div>
-      <div ref={chatRef} className="flex ml-32 gap-7 items-center relative">
+      <div ref={chatRef} className="flex  ml-32 gap-7 items-center relative">
         <BsChatDots
           onClick={handleToggleChat}
           className={`cursor-pointer flex ${
@@ -366,7 +372,7 @@ const Navbar = () => {
             {notifications.length > 0 ? (
               notifications.map((notification) => (
                 <div
-                  key={notification._id} 
+                  key={notification._id}
                   className={`p-2 rounded-lg cursor-pointer duration-200 flex gap-2 items-center ${
                     isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
                   }`}
@@ -438,10 +444,10 @@ const Navbar = () => {
               <div
                 className={`absolute  right-0 z-10 mt-2 w-64 ${
                   isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-                } border rounded-lg shadow-lg`}
+                } border rounded-lg hover:bg-gray-200 duration-150 shadow-lg`}
               >
                 <div
-                  className="p-2 cursor-pointer text-red-400 ml-2 "
+                  className="p-2 cursor-pointer  text-red-400 ml-2 "
                   onClick={handleLogout}
                 >
                   Logout

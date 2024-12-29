@@ -38,7 +38,7 @@ export const POST = async (request) => {
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
 
     const { password: _, ...userWithoutPassword } = user._doc;

@@ -8,13 +8,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 const Login = () => {
-  const user = useSelector((state) => state.user.user);
+ 
   const router = useRouter();
   const dispatch = useDispatch();
   const [values, setValues] = useState({
     email: "",
     password: "",
   });
+  
 
   const [errorMessage, setErrorMessage] = useState("");
   const [loadingToastId, setLoadingToastId] = useState(null);

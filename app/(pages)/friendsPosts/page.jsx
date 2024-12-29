@@ -194,7 +194,7 @@ const FriendsPosts = () => {
 
   return (
     <div
-      className={`relative flex flex-col w-full p-4 shadow-md gap-14 ${
+      className={`relative  flex flex-col w-full p-4 shadow-md gap-14 ${
         isDarkMode ? "bg-gray-900" : "bg-gray-100"
       }`}
     >
@@ -207,7 +207,7 @@ const FriendsPosts = () => {
           }`}
           style={{ top: 10, left: 4 }}
         >
-          <div className="flex flex-col items-center gap-4 border-b pb-4 mb-4">
+          <div className="flex flex-col  items-center gap-4 border-b pb-4 mb-4">
             <img
               className="w-24 h-24 rounded-full object-cover border"
               src={

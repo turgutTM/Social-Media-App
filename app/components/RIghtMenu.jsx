@@ -101,7 +101,7 @@ const RightMenu = () => {
 
   return (
     <div
-      className={`flex flex-col gap-4 ${
+      className={`flex flex-col max-xl:hidden gap-4 ${
         isDarkMode ? "text-white" : "text-black"
       }`}
     >

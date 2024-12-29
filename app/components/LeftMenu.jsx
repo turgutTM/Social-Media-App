@@ -31,7 +31,7 @@ const LeftMenu = () => {
           <img
             src={
               user.profilePhoto ||
-             "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+             "/defaultpicture.jpg"
             }
             alt="Profile Photo"
             className="w-16 h-16 cursor-pointer rounded-full object-cover border border-white "
