@@ -8,14 +8,13 @@ import { LuUser2 } from "react-icons/lu";
 import { RiNotification2Line, RiMore2Fill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
-import { IoChatboxOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import {
   logoutUser,
   setDarkMode,
   setUser,
   toggleDarkMode,
-} from "../features/userSlice";
+} from "../features/UserSlice";
 import axios from "axios";
 
 import ChatModal from "./ChatModal";
