@@ -269,7 +269,7 @@ const Navbar = () => {
         <input
           className={`border-none ${
             isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-          } outline-none px-4 py-1 rounded-full`}
+          } outline-none px-4 w-[25rem] py-1 rounded-full`}
           placeholder="search..."
           value={searchInput}
           onChange={handleSearchInputChange}
@@ -334,128 +334,134 @@ const Navbar = () => {
 
         <CiSearch className="text-gray-500 mr-2" />
       </div>
-      <div ref={chatRef} className="flex  ml-32 gap-7 items-center relative">
-        <BsChatDots
-          onClick={handleToggleChat}
-          className={`cursor-pointer flex ${
-            currentPath === "/chat" ? "text-blue-500" : ""
-          }`}
-        />
-        <div>
-          <RiNotification2Line
-            onClick={(e) => {
-              toggleDropNotification(e);
-            }}
+      <div className="flex justify-end ">
+        <div ref={chatRef} className="flex ml-32 gap-10 items-center relative">
+          <BsChatDots
+            onClick={handleToggleChat}
             className={`cursor-pointer flex ${
-              currentPath === "/notification" ? "text-blue-500" : ""
+              currentPath === "/chat" ? "text-blue-500" : ""
             }`}
           />
+          <div>
+            <RiNotification2Line
+              onClick={(e) => {
+                toggleDropNotification(e);
+              }}
+              className={`cursor-pointer flex ${
+                currentPath === "/notification" ? "text-blue-500" : ""
+              }`}
+            />
 
-          {Array.isArray(notifications) &&
-            notifications.some((notification) => !notification.read) && (
-              <span className="absolute bottom-4 ml-2 right-42 w-2 h-2 text-xs font-bold text-white bg-red-600 p-2 rounded-full flex items-center justify-center">
-                {
-                  notifications.filter((notification) => !notification.read)
-                    .length
-                }
-              </span>
-            )}
-        </div>
+            {Array.isArray(notifications) &&
+              notifications.some((notification) => !notification.read) && (
+                <span className="absolute bottom-4 ml-2 right-42 w-2 h-2 text-xs font-bold text-white bg-red-600 p-2 rounded-full flex items-center justify-center">
+                  {
+                    notifications.filter((notification) => !notification.read)
+                      .length
+                  }
+                </span>
+              )}
+          </div>
 
-        {dropdownNotification && (
-          <div
-            ref={notificationRef}
-            className={`absolute right-0 top-full z-50 mt-2 w-80 shadow-lg rounded-lg p-2 ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
-            } h-fit max-h-60 overflow-y-auto scrollbar-hide`}
-          >
-            {notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <div
-                  key={notification._id}
-                  className={`p-2 rounded-lg cursor-pointer duration-200 flex gap-2 items-center ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
-                  }`}
-                >
-                  <img
-                    className="w-8 h-8 rounded-full"
-                    src={notification.senderPhoto || "defaultpicture.jpg"}
-                    alt="Notification Sender"
-                  />
-                  <span className="text-sm">
-                    <span className="font-semibold">
-                      {notification.senderName}
+          {dropdownNotification && (
+            <div
+              ref={notificationRef}
+              className={`absolute right-0 top-full z-50 mt-2 w-80 shadow-lg rounded-lg p-2 ${
+                isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+              } h-fit max-h-60 overflow-y-auto scrollbar-hide`}
+            >
+              {notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <div
+                    key={notification._id}
+                    className={`p-2 rounded-lg cursor-pointer duration-200 flex gap-2 items-center ${
+                      isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
+                    }`}
+                  >
+                    <img
+                      className="w-8 h-8 rounded-full"
+                      src={notification.senderPhoto || "defaultpicture.jpg"}
+                      alt="Notification Sender"
+                    />
+                    <span className="text-sm">
+                      <span className="font-semibold">
+                        {notification.senderName}
+                      </span>
+                      <span className="font-thin ml-1">
+                        {notification.messageBody}
+                      </span>
                     </span>
-                    <span className="font-thin ml-1">
-                      {notification.messageBody}
-                    </span>
-                  </span>
+                  </div>
+                ))
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <p
+                    className={`${isDarkMode ? "text-gray-400" : "text-black"}`}
+                  >
+                    No notifications yet
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="flex justify-center items-center h-full">
-                <p className={`${isDarkMode ? "text-gray-400" : "text-black"}`}>
-                  No notifications yet
-                </p>
-              </div>
+              )}
+            </div>
+          )}
+
+          <div
+            onClick={() => togglePath("/profile")}
+            className="relative flex items-center gap-1.5 cursor-pointer"
+          >
+            <Link href={`/profile/${user?._id}`}>
+              <p
+                className={`${
+                  currentPath === "/profile" ? "text-blue-500" : ""
+                }`}
+              >
+                <LuUser2></LuUser2>
+              </p>
+            </Link>
+            {currentPath === "/profile" && (
+              <span className="absolute bottom-0 left-0 w-full h-1"></span>
             )}
           </div>
-        )}
-
-        <div
-          onClick={() => togglePath("/profile")}
-          className="relative flex items-center gap-1.5 cursor-pointer"
-        >
-          <Link href={`/profile/${user?._id}`}>
-            <p
-              className={`${currentPath === "/profile" ? "text-blue-500" : ""}`}
+          <div className="flex border-gray-200">
+            <div
+              className={`flex items-center cursor-pointer p-2 rounded-full ${
+                isDarkMode
+                  ? "bg-gray-800 text-yellow-300"
+                  : "bg-gray-200 text-gray-800"
+              }`}
+              onClick={handleToggleDarkMode}
             >
-              <LuUser2></LuUser2>
-            </p>
-          </Link>
-          {currentPath === "/profile" && (
-            <span className="absolute bottom-0 left-0 w-full h-1"></span>
+              {isDarkMode ? (
+                <GoSun className="text-lg" />
+              ) : (
+                <MdOutlineNightlight className="text-lg" />
+              )}
+            </div>
+          </div>
+
+          {user && Object.keys(user).length > 0 && (
+            <div className="relative" ref={dropdownRef}>
+              <RiMore2Fill
+                className="cursor-pointer mr-2"
+                onClick={toggleDropdown}
+              />
+              {dropdownOpen && (
+                <div
+                  className={`absolute  right-0 z-10 mt-2 w-64 ${
+                    isDarkMode ? "bg-gray-800 text-white" : "bg-white"
+                  } border rounded-lg hover:bg-gray-200 duration-150 shadow-lg`}
+                >
+                  <div
+                    className="p-2 cursor-pointer  text-red-400 ml-2 "
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
-        <div className="flex border-gray-200">
-          <div
-            className={`flex items-center cursor-pointer p-2 rounded-full ${
-              isDarkMode
-                ? "bg-gray-800 text-yellow-300"
-                : "bg-gray-200 text-gray-800"
-            }`}
-            onClick={handleToggleDarkMode}
-          >
-            {isDarkMode ? (
-              <GoSun className="text-lg" />
-            ) : (
-              <MdOutlineNightlight className="text-lg" />
-            )}
-          </div>
-        </div>
-
-        {user && Object.keys(user).length > 0 && (
-          <div className="relative" ref={dropdownRef}>
-            <RiMore2Fill
-              className="cursor-pointer mr-2"
-              onClick={toggleDropdown}
-            />
-            {dropdownOpen && (
-              <div
-                className={`absolute  right-0 z-10 mt-2 w-64 ${
-                  isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-                } border rounded-lg hover:bg-gray-200 duration-150 shadow-lg`}
-              >
-                <div
-                  className="p-2 cursor-pointer  text-red-400 ml-2 "
-                  onClick={handleLogout}
-                >
-                  Logout
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
       {chatOpen && (
         <ChatModal chatOpen={chatOpen} handleToggleChat={handleToggleChat} />

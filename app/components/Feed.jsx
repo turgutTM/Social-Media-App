@@ -96,7 +96,7 @@ const Feed = () => {
         throw new Error("Failed to like/unlike post");
       }
 
-      if (!isLiked) {
+      if (!isLiked && user._id !== postUserID) {
         const notificationResponse = await fetch("/api/send-notification", {
           method: "POST",
           headers: {
@@ -395,24 +395,29 @@ const Feed = () => {
                 ) : (
                   <div className="mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin max-h-60">
                     {comments.map((comment, index) => (
-                      <div key={index} className="flex items-center gap-2 mb-1">
-                        <img
-                          src={
-                            comment?.user?.profilePhoto ||
-                            "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-                          }
-                          alt="Profile"
-                          className="w-8 h-8 rounded-full"
-                        />
+                      <div
+                        key={index}
+                        className="flex items-start  gap-2 mb-1"
+                      >
                         <div>
                           <span className="font-medium flex gap-1 items-center">
-                            {comment.user?.name}
+                            <img
+                              src={
+                                comment?.user?.profilePhoto ||
+                                "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                              }
+                              alt="Profile"
+                              className="w-8 h-8 mr-1 rounded-full"
+                            />
+                            <Link href={`/profile/${comment.userID}`}>
+                              {comment.user?.name}
+                            </Link>
                             {post?.userID == comment?.userID && (
-                              <span className="text-[10px] mt-1 text-red-500">
+                              <span className="text-[10px] flex items-center text-red-500">
                                 • Author
                               </span>
                             )}
-                            <p className="text-gray-400 mt-1 ml-1 text-[10px]">
+                            <p className="text-gray-400 ml-1 flex items-center text-[10px]">
                               {formatDistanceToNow(
                                 new Date(comment?.createdAt),
                                 { addSuffix: true }
@@ -421,7 +426,7 @@ const Feed = () => {
                             {(post.userID === user?._id ||
                               comment.userID === user?._id) && (
                               <span
-                                className="ml-1 mt-1 cursor-pointer hover:text-red-500 text-gray-400 text-sm duration-300"
+                                className="ml-1 flex items-center cursor-pointer hover:text-red-500 text-gray-400 text-sm duration-300"
                                 onClick={() => handleDeleteComment(comment._id)}
                               >
                                 <MdDeleteOutline />
@@ -429,7 +434,9 @@ const Feed = () => {
                             )}
                           </span>
 
-                          <p className="text-sm">{comment.comment}</p>
+                          <p className="text-sm w-[30rem] ml-10 overflow-auto break-words">
+                            {comment.comment}
+                          </p>
                         </div>
                       </div>
                     ))}

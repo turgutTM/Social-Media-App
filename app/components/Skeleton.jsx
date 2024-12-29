@@ -89,7 +89,7 @@ const Skeleton = ({ type }) => {
     return (
       <div className="w-full items-center gap-2 p-1 mt-2 flex ">
        <div className="w-8 h-8 rounded-full bg-gray-300"></div>
-       <div className="w-36 h-5 rounded-lg bg-gray-300"></div>
+       <div className="w-96 h-5 rounded-lg bg-gray-300"></div>
       </div>
     );
   }

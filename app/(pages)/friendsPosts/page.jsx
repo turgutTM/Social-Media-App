@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MdDeleteOutline } from "react-icons/md";
+import Link from "next/link";
 
 const FriendsPosts = () => {
   const [friendsPosts, setFriendsPosts] = useState([]);
@@ -75,6 +76,25 @@ const FriendsPosts = () => {
           ...prevLikes,
           [postID]: !prevLikes[postID],
         }));
+      }
+
+      if (!isLiked && user._id !== postUserID) {
+        const notificationResponse = await fetch("/api/send-notification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            postID: postID,
+            receiverId: postUserID,
+            senderId: user._id,
+            type: "like",
+          }),
+        });
+
+        if (!notificationResponse.ok) {
+          console.error("Failed to send notification");
+        }
       }
     } catch (error) {
       console.error("Error liking/unliking post:", error);
@@ -313,7 +333,7 @@ const FriendsPosts = () => {
                       ? "bg-blue-600 text-white"
                       : "bg-gray-100 text-gray-600"
                   }`}
-                  onClick={() => handleLike(post._id)}
+                  onClick={() => handleLike(post._id,post.userID)}
                 >
                   <AiOutlineLike
                     className={`text-lg duration-150 ${
@@ -363,23 +383,25 @@ const FriendsPosts = () => {
                   <div className="mb-2 flex flex-col gap-3 overflow-y-auto scrollbar-thin max-h-60">
                     {comments.map((comment, index) => (
                       <div key={index} className="flex items-center gap-2 mb-1">
-                        <img
-                          src={
-                            comment?.user?.profilePhoto ||
-                            "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-                          }
-                          alt="Profile"
-                          className="w-8 h-8 rounded-full"
-                        />
                         <div>
-                          <span className="font-medium flex gap-1 items-center">
-                            {comment.user?.name}
+                        <span className="font-medium flex gap-1 items-center">
+                            <img
+                              src={
+                                comment?.user?.profilePhoto ||
+                                "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                              }
+                              alt="Profile"
+                              className="w-8 h-8 mr-1 rounded-full"
+                            />
+                            <Link href={`/profile/${comment.userID}`}>
+                              {comment.user?.name}
+                            </Link>
                             {post?.userID == comment?.userID && (
-                              <span className="text-[10px] mt-1 text-red-500">
+                              <span className="text-[10px] flex items-center mt-1 text-red-500">
                                 • Author
                               </span>
                             )}
-                            <p className="text-gray-400 mt-1 ml-1 text-[10px]">
+                            <p className="text-gray-400 ml-1 text-[10px]">
                               {formatDistanceToNow(
                                 new Date(comment?.createdAt),
                                 { addSuffix: true }
@@ -388,7 +410,7 @@ const FriendsPosts = () => {
                             {(post.userID === user?._id ||
                               comment.userID === user?._id) && (
                               <span
-                                className="ml-1 mt-1 cursor-pointer hover:text-red-500 text-gray-400 text-sm duration-300"
+                                className="ml-1 flex items-center cursor-pointer hover:text-red-500 text-gray-400 text-sm duration-300"
                                 onClick={() => handleDeleteComment(comment._id)}
                               >
                                 <MdDeleteOutline />
@@ -396,7 +418,9 @@ const FriendsPosts = () => {
                             )}
                           </span>
 
-                          <p className="text-sm">{comment.comment}</p>
+                          <p className="text-sm w-[30rem] ml-10 overflow-auto break-words">
+                            {comment.comment}
+                          </p>
                         </div>
                       </div>
                     ))}
