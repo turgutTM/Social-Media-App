@@ -138,7 +138,7 @@ export const {
   removeFriend,
   addFollowing,
   removeFollowing,
-  removeBlockedUser
+  removeBlockedUser,
 } = userSlice.actions;
 
 export default userSlice.reducer;

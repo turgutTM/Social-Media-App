@@ -18,6 +18,8 @@ const Chatconv = ({
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const isDarkMode = useSelector((state) => state.user.darkMode);
+  
   const user = useSelector((state) => state.user.user);
   const messagesEndRef = useRef(null);
 
@@ -155,7 +157,9 @@ const Chatconv = ({
   };
 
   return (
-    <div className="flex flex-col justify-between h-full">
+    <div className={`flex flex-col justify-between h-full ${
+        isDarkMode ? "bg-gray-900 text-white border-t" : "bg-white text-black"
+      }`}>
       {selectedProfileId === user._id ? (
         <div className="flex flex-col items-center justify-center h-full">
           <img

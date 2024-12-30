@@ -20,7 +20,7 @@ import axios from "axios";
 import ChatModal from "./ChatModal";
 const Navbar = () => {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
+  const loggedUser = useSelector((state) => state.user.user);
   const isDarkMode = useSelector((state) => state.user.darkMode);
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -58,7 +58,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch(`/api/get-notification/${user._id}`);
+        const response = await fetch(`/api/get-notification/${loggedUser._id}`);
         if (response.ok) {
           const notifications = await response.json();
           setNotifications(notifications);
@@ -70,10 +70,10 @@ const Navbar = () => {
       }
     };
 
-    if (user && user._id) {
+    if (loggedUser && loggedUser._id) {
       fetchNotifications();
     }
-  }, [user._id]);
+  }, [loggedUser._id]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -178,7 +178,7 @@ const Navbar = () => {
 
     try {
       const response = axios.post("/api/isdark", {
-        userId: user._id,
+        userId: loggedUser._id,
         isDark: newDarkModeState,
       });
 
@@ -408,7 +408,7 @@ const Navbar = () => {
             onClick={() => togglePath("/profile")}
             className="relative flex items-center gap-1.5 cursor-pointer"
           >
-            <Link href={`/profile/${user?._id}`}>
+            <Link href={`/profile/${loggedUser?._id}`}>
               <p
                 className={`${
                   currentPath === "/profile" ? "text-blue-500" : ""
@@ -438,7 +438,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {user && Object.keys(user).length > 0 && (
+          {loggedUser && Object.keys(loggedUser).length > 0 && (
             <div className="relative" ref={dropdownRef}>
               <RiMore2Fill
                 className="cursor-pointer mr-2"
@@ -447,7 +447,9 @@ const Navbar = () => {
               {dropdownOpen && (
                 <div
                   className={`absolute  right-0 z-10 mt-2 w-64 ${
-                    isDarkMode ? "bg-gray-800 text-white" : "bg-white"
+                    isDarkMode ? 
+                    
+                    "bg-gray-800 text-white" : "bg-white"
                   } border rounded-lg hover:bg-gray-200 duration-150 shadow-lg`}
                 >
                   <div

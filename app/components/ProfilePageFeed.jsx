@@ -399,12 +399,12 @@
                   </div>
 
                   <div
-                    className={`group flex items-center w-36 gap-4 p-2 h-fit rounded-3xl cursor-pointer ${
+                    className={`group flex items-center w-36 gap-4 p-2 border  border-white h-fit rounded-3xl cursor-pointer ${
                       isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100"
                     }`}
                     onClick={() => handleViewComments(post._id)}
                   >
-                    <FaRegComments className="text-lg group-hover:text-orange-300 duration-150" />
+                    <FaRegComments className="text-lg  group-hover:text-orange-300 duration-150" />
                     <span className="text-xs font-medium">
                       {post.commentCount} Comments
                     </span>
@@ -437,7 +437,7 @@
                           className="flex items-start  gap-2 mb-1"
                         >
                           <div>
-                            <span className="font-medium flex gap-1 items-center">
+                            <span className="font-medium flex gap-1 object-cover items-center">
                               <img
                                 src={
                                   comment?.user?.profilePhoto ||

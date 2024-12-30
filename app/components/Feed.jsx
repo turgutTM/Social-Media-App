@@ -407,7 +407,7 @@ const Feed = () => {
                                 "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                               }
                               alt="Profile"
-                              className="w-8 h-8 mr-1 rounded-full"
+                              className="w-8 h-8 mr-1 object-cover rounded-full"
                             />
                             <Link href={`/profile/${comment.userID}`}>
                               {comment.user?.name}

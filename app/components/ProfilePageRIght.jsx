@@ -324,14 +324,14 @@ const ProfilePageRight = ({ userId }) => {
               </p>
             </div>
             <div>
-              <p>{userData.bio || "This is my bio"}</p>
+              <p>{userData.bio.substring(0, 30) || "This is my bio"}...</p>
             </div>
             <div className="flex gap-2 items-center">
               <IoLocationOutline />
               <p>
                 Living in{" "}
                 <span className="font-semibold">
-                  {userData.live || "World"}
+                  {userData.live.substring(0, 30) || "World"}...
                 </span>
               </p>
             </div>
@@ -340,7 +340,7 @@ const ProfilePageRight = ({ userId }) => {
               <p>
                 Went to{" "}
                 <span className="font-semibold">
-                  {userData.school || "World"}
+                  {userData.school.substring(0, 30) || "World"}...
                 </span>
               </p>
             </div>
@@ -349,7 +349,7 @@ const ProfilePageRight = ({ userId }) => {
               <p>
                 Works at{" "}
                 <span className="font-semibold">
-                  {userData.worksAt || "World"}
+                  {userData.worksAt.substring(0, 30) || "World"} ...  
                 </span>
               </p>
             </div>
@@ -397,7 +397,11 @@ const ProfilePageRight = ({ userId }) => {
 
             {isLoggedUser && (
               <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-700">
+                <span
+                  className={`font-medium ${
+                    isDarkMode ? "text-white" : "text-gray-700"
+                  }`}
+                >
                   Private Account{" "}
                   <span className="text-xs">
                     {isPrivate
@@ -462,7 +466,7 @@ const ProfilePageRight = ({ userId }) => {
                 <div className="flex justify-center ">
                   <button
                     className="text-red-500 font-semibold w-full flex justify-end"
-                    onClick={() => setIsBlockModalOpen(true)} 
+                    onClick={() => setIsBlockModalOpen(true)}
                     disabled={isBlocked}
                   >
                     {isBlocked ? "User Blocked" : "Block User"}
