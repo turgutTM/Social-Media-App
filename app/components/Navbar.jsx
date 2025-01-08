@@ -378,7 +378,7 @@ const Navbar = () => {
                     }`}
                   >
                     <img
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 object-cover rounded-full"
                       src={notification.senderPhoto || "defaultpicture.jpg"}
                       alt="Notification Sender"
                     />

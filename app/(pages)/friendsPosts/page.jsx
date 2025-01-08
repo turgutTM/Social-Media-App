@@ -236,16 +236,22 @@ const FriendsPosts = () => {
               }
               alt="Profile"
             />
-            <p className="font-medium text-lg">{hoveredUser.name}</p>
+            <p className="font-medium text-lg">
+              {hoveredUser.name.substring(0, 30)}...
+            </p>
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 border-b pb-2">
               <span className="font-medium">Email:</span>
-              <span className="text-sm text-gray-500">{hoveredUser.email}</span>
+              <span className="text-sm text-gray-500">
+                {hoveredUser.email.substring(0, 30)}...
+              </span>
             </div>
             <div className="flex items-center gap-2 border-b pb-2">
               <span className="font-medium">Location:</span>
-              <span className="text-sm text-gray-500">{hoveredUser.live}</span>
+              <span className="text-sm text-gray-500">
+                {hoveredUser.live.substring(0, 30)}...
+              </span>
             </div>
             <div className="flex items-center gap-2 border-b pb-2">
               <span className="font-medium">School:</span>
@@ -256,13 +262,13 @@ const FriendsPosts = () => {
             <div className="flex items-center gap-2 border-b pb-2">
               <span className="font-medium">Works At:</span>
               <span className="text-sm text-gray-500">
-                {hoveredUser.worksAt}
+                {hoveredUser.worksAt.substring(0, 30)}...
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-medium">Went To:</span>
               <span className="text-sm text-gray-500">
-                {hoveredUser.wentTo}
+                {hoveredUser.wentTo.substring(0, 30)}...
               </span>
             </div>
           </div>
@@ -333,7 +339,7 @@ const FriendsPosts = () => {
                       ? "bg-blue-600 text-white"
                       : "bg-gray-100 text-gray-600"
                   }`}
-                  onClick={() => handleLike(post._id,post.userID)}
+                  onClick={() => handleLike(post._id, post.userID)}
                 >
                   <AiOutlineLike
                     className={`text-lg duration-150 ${
@@ -384,7 +390,7 @@ const FriendsPosts = () => {
                     {comments.map((comment, index) => (
                       <div key={index} className="flex items-center gap-2 mb-1">
                         <div>
-                        <span className="font-medium flex gap-1 items-center">
+                          <span className="font-medium flex gap-1 items-center">
                             <img
                               src={
                                 comment?.user?.profilePhoto ||

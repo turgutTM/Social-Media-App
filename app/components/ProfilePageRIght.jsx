@@ -324,14 +324,14 @@ const ProfilePageRight = ({ userId }) => {
               </p>
             </div>
             <div>
-              <p>{userData.bio.substring(0, 30) || "This is my bio"}...</p>
+              <p>{userData?.bio?.substring(0, 30) || "This is my bio"}...</p>
             </div>
             <div className="flex gap-2 items-center">
               <IoLocationOutline />
               <p>
                 Living in{" "}
                 <span className="font-semibold">
-                  {userData.live.substring(0, 30) || "World"}...
+                  {userData?.live?.substring(0, 30) || "World"}...
                 </span>
               </p>
             </div>
@@ -340,7 +340,7 @@ const ProfilePageRight = ({ userId }) => {
               <p>
                 Went to{" "}
                 <span className="font-semibold">
-                  {userData.school.substring(0, 30) || "World"}...
+                  {userData?.school?.substring(0, 30) || "World"}...
                 </span>
               </p>
             </div>
@@ -349,7 +349,7 @@ const ProfilePageRight = ({ userId }) => {
               <p>
                 Works at{" "}
                 <span className="font-semibold">
-                  {userData.worksAt.substring(0, 30) || "World"} ...  
+                  {userData?.worksAt?.substring(0, 30) || "World"} ...  
                 </span>
               </p>
             </div>

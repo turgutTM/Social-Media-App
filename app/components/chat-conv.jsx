@@ -157,7 +157,7 @@ const Chatconv = ({
   };
 
   return (
-    <div className={`flex flex-col justify-between h-full ${
+    <div className={`flex flex-col rounded-lg justify-between h-full ${
         isDarkMode ? "bg-gray-900 text-white border-t" : "bg-white text-black"
       }`}>
       {selectedProfileId === user._id ? (
