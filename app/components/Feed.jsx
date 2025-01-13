@@ -398,7 +398,6 @@ const Feed = () => {
                         key={index}
                         className="flex gap-3 items-start p-3 bg-gray-50 shadow-sm rounded-md"
                       >
-                        {/* Profil Fotoğrafı */}
                         <img
                           src={
                             comment?.user?.profilePhoto ||
@@ -408,10 +407,8 @@ const Feed = () => {
                           className="w-10 h-10 object-cover rounded-full"
                         />
 
-                        {/* Kullanıcı Bilgileri ve Yorum */}
                         <div className="flex flex-col flex-1">
                           <div className="flex items-center justify-between">
-                            {/* Kullanıcı İsmi ve Yazar Etiketi */}
                             <div className="flex items-center gap-2">
                               <Link
                                 href={`/profile/${comment.userID}`}
@@ -434,7 +431,6 @@ const Feed = () => {
                               </p>
                             </div>
 
-                            {/* Silme Butonu */}
                             {(post.userID === user?._id ||
                               comment.userID === user?._id) && (
                               <span
@@ -446,7 +442,6 @@ const Feed = () => {
                             )}
                           </div>
 
-                          {/* Yorum Metni */}
                           <p className="text-sm w-[37rem] text-gray-600 mt-2 break-words whitespace-pre-wrap">
                             {comment.comment}
                           </p>
