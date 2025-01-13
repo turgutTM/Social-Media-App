@@ -28,6 +28,10 @@ module.exports = withUt({
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
         fadeOut: {
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
@@ -36,7 +40,9 @@ module.exports = withUt({
       animation: {
         fadeIn: 'fadeIn 0.3s ease-out',
         fadeOut: 'fadeOut 0.3s ease-out',
+        shimmer: 'shimmer 1.5s infinite',
       },
+      
     },
   },
   plugins: [],

@@ -6,9 +6,9 @@ import { IoBagOutline } from "react-icons/io5";
 import { CiLink, CiCalendar } from "react-icons/ci";
 import Link from "next/link";
 import UpdateUserModal from "../components/UpdateUserModal";
-import { ToastContainer, toast } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
-import { ClipLoader } from "react-spinners";
+
 import {
   addBlockedUser,
   addFriendRequest,
@@ -349,7 +349,7 @@ const ProfilePageRight = ({ userId }) => {
               <p>
                 Works at{" "}
                 <span className="font-semibold">
-                  {userData?.worksAt?.substring(0, 30) || "World"} ...  
+                  {userData?.worksAt?.substring(0, 30) || "World"} ...
                 </span>
               </p>
             </div>

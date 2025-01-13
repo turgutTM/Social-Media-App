@@ -1,5 +1,5 @@
 "use client";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import AddPost from "./components/AddPost";
 import Feed from "./components/Feed";
 import LeftMenu from "./components/LeftMenu";

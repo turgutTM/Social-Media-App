@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CiSearch } from "react-icons/ci";
 import { BsChatDots } from "react-icons/bs";
-
+import { BiLogOut } from "react-icons/bi";
 import { MdOutlineNightlight } from "react-icons/md";
 import { GoSun } from "react-icons/go";
 import { LuUser2 } from "react-icons/lu";
@@ -9,12 +9,7 @@ import { RiNotification2Line, RiMore2Fill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import {
-  logoutUser,
-  setDarkMode,
-  setUser,
-  toggleDarkMode,
-} from "../features/UserSlice";
+import { logoutUser, setDarkMode, toggleDarkMode } from "../features/UserSlice";
 import axios from "axios";
 
 import ChatModal from "./ChatModal";
@@ -205,7 +200,7 @@ const Navbar = () => {
         isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
       }`}
     >
-      <div className="flex ml-48  text-3xl font-bold text-blue-500">
+      <div className="flex ml-24  text-3xl font-bold text-blue-500">
         <Link onClick={() => togglePath("/")} href="/">
           <img className="w-14 max-lg:w-4" src="/imageTugu.png"></img>
         </Link>
@@ -268,7 +263,7 @@ const Navbar = () => {
         <input
           className={`border-none ${
             isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-          } outline-none px-4 w-[25rem] py-1 rounded-full`}
+          } outline-none px-4 w-[18rem] py-1 rounded-full`}
           placeholder="search..."
           value={searchInput}
           onChange={handleSearchInputChange}
@@ -447,15 +442,14 @@ const Navbar = () => {
               {dropdownOpen && (
                 <div
                   className={`absolute  right-0 z-10 mt-2 w-64 ${
-                    isDarkMode ? 
-                    
-                    "bg-gray-800 text-white" : "bg-white"
+                    isDarkMode ? "bg-gray-800 text-white" : "bg-white"
                   } border rounded-lg hover:bg-gray-200 duration-150 shadow-lg`}
                 >
                   <div
-                    className="p-2 cursor-pointer  text-red-400 ml-2 "
+                    className="p-2 cursor-pointer flex items-center gap-1 text-red-400 "
                     onClick={handleLogout}
                   >
+                    <BiLogOut className="text-lg" />
                     Logout
                   </div>
                 </div>

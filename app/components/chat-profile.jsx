@@ -5,18 +5,13 @@ import { LiaCheckDoubleSolid } from "react-icons/lia";
 import { useSelector } from "react-redux";
 import Skeleton from "./Skeleton";
 
-const Chatprofile = ({
-  setSelectedProfileId,
-  setSelectedProfileData,
-  selectedProfileId,
-}) => {
+const Chatprofile = ({ setSelectedProfileId, setSelectedProfileData }) => {
   const [friends, setFriends] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [lastMessageData, setLastMessageData] = useState({});
   const [loading, setLoading] = useState(true);
   const user = useSelector((state) => state.user.user);
   const isDarkMode = useSelector((state) => state.user.darkMode);
-  
 
   useEffect(() => {
     const fetchFriendsAndLastMessages = async () => {
@@ -60,7 +55,7 @@ const Chatprofile = ({
       } catch (error) {
         console.error("Error fetching friends:", error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -98,9 +93,11 @@ const Chatprofile = ({
   );
 
   return (
-    <div className={`h-full rounded-lg gap-4 flex flex-col p-3  ${
+    <div
+      className={`h-full rounded-lg gap-4 flex flex-col p-3  ${
         isDarkMode ? "bg-gray-900 text-white border-t" : "bg-white text-black"
-      }`}>
+      }`}
+    >
       <div className="flex border bg-slate-200 items-center p-2 gap-2 rounded-[10px]">
         <IoSearch className="text-gray-500 text-2xl" />
         <input

@@ -12,7 +12,6 @@
   import "react-toastify/dist/ReactToastify.css";
   import UpdatePostModal from "../components/UpdatePostModal";
   import { CiLock } from "react-icons/ci";
-  import { ClipLoader } from "react-spinners";
   import Skeleton from "./Skeleton";
   import Link from "next/link";
 

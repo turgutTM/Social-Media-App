@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { IoMdCheckmark } from "react-icons/io";
-import { IoCloseSharp } from "react-icons/io5";
+
 import { CiGift } from "react-icons/ci";
 import Link from "next/link";
 import ShowRequestModal from "./showRequestModal";
@@ -25,7 +24,6 @@ const RightMenu = () => {
   const [selectedFriend, setSelectedFriend] = useState();
   const [initialMessage, setInitialMessage] = useState();
   console.log(friends);
-  
 
   useEffect(() => {
     const fetchFollowRequests = async () => {

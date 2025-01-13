@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UpdatePostModal from "../components/UpdatePostModal";
 import { useRouter } from "next/navigation";
-import { ClipLoader } from "react-spinners";
 import Skeleton from "../components/Skeleton";
 
 const Feed = () => {
@@ -397,44 +396,58 @@ const Feed = () => {
                     {comments.map((comment, index) => (
                       <div
                         key={index}
-                        className="flex items-start  gap-2 mb-1"
+                        className="flex gap-3 items-start p-3 bg-gray-50 shadow-sm rounded-md"
                       >
-                        <div>
-                          <span className="font-medium flex gap-1 items-center">
-                            <img
-                              src={
-                                comment?.user?.profilePhoto ||
-                                "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-                              }
-                              alt="Profile"
-                              className="w-8 h-8 mr-1 object-cover rounded-full"
-                            />
-                            <Link href={`/profile/${comment.userID}`}>
-                              {comment.user?.name}
-                            </Link>
-                            {post?.userID == comment?.userID && (
-                              <span className="text-[10px] flex items-center text-red-500">
-                                • Author
-                              </span>
-                            )}
-                            <p className="text-gray-400 ml-1 flex items-center text-[10px]">
-                              {formatDistanceToNow(
-                                new Date(comment?.createdAt),
-                                { addSuffix: true }
+                        {/* Profil Fotoğrafı */}
+                        <img
+                          src={
+                            comment?.user?.profilePhoto ||
+                            "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                          }
+                          alt="Profile"
+                          className="w-10 h-10 object-cover rounded-full"
+                        />
+
+                        {/* Kullanıcı Bilgileri ve Yorum */}
+                        <div className="flex flex-col flex-1">
+                          <div className="flex items-center justify-between">
+                            {/* Kullanıcı İsmi ve Yazar Etiketi */}
+                            <div className="flex items-center gap-2">
+                              <Link
+                                href={`/profile/${comment.userID}`}
+                                className="font-semibold text-gray-700 hover:underline"
+                              >
+                                {comment.user?.name}
+                              </Link>
+                              {post?.userID == comment?.userID && (
+                                <span className="text-xs text-red-500 bg-red-100 px-2 py-0.5 rounded-full">
+                                  Author
+                                </span>
                               )}
-                            </p>
+                              <p className="text-xs text-gray-400">
+                                {formatDistanceToNow(
+                                  new Date(comment?.createdAt),
+                                  {
+                                    addSuffix: true,
+                                  }
+                                )}
+                              </p>
+                            </div>
+
+                            {/* Silme Butonu */}
                             {(post.userID === user?._id ||
                               comment.userID === user?._id) && (
                               <span
-                                className="ml-1 flex items-center cursor-pointer hover:text-red-500 text-gray-400 text-sm duration-300"
+                                className="text-gray-400 cursor-pointer hover:text-red-500"
                                 onClick={() => handleDeleteComment(comment._id)}
                               >
                                 <MdDeleteOutline />
                               </span>
                             )}
-                          </span>
+                          </div>
 
-                          <p className="text-sm w-[30rem] ml-10 overflow-auto break-words">
+                          {/* Yorum Metni */}
+                          <p className="text-sm w-[37rem] text-gray-600 mt-2 break-words whitespace-pre-wrap">
                             {comment.comment}
                           </p>
                         </div>

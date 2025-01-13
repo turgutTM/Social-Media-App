@@ -6,20 +6,18 @@ body {
   @apply bg-gray-100;
 }
 
-/* globals.css */
 
-/* WebKit tabanlı tarayıcılar için scrollbar ayarları */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 1px; /* Scrollbar genişliği */
+  width: 1px; 
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.5); /* Scrollbar parmağı rengi */
-  border-radius: 2px; /* Scrollbar parmağının köşe yuvarlaklığı */
+  background-color: rgba(0, 0, 0, 0.5); 
+  border-radius: 2px; 
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background-color: transparent; /* Scrollbar izinin arka plan rengi */
+  background-color: transparent; 
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
@@ -30,19 +28,18 @@ body {
   scrollbar-width: none;
 }
 
-/* Firefox için scrollbar ayarları */
 .scrollbar-thin {
-  scrollbar-width: thin; /* Scrollbar genişliği */
-  scrollbar-color: rgba(0, 0, 0, 0.5) transparent; /* Scrollbar rengi */
+  scrollbar-width: thin; 
+  scrollbar-color: rgba(0, 0, 0, 0.5) transparent; 
 }
 
-/* Toggle switch container */
+
 .toggle-switch {
   display: flex;
   align-items: center;
 }
 
-/* Toggle switch */
+
 .toggle-switch input {
   display: none;
 }
@@ -57,7 +54,6 @@ body {
   transition: background-color 0.3s;
 }
 
-/* Switch slider */
 .switch::before {
   content: "";
   position: absolute;
@@ -70,7 +66,7 @@ body {
   transition: transform 0.3s;
 }
 
-/* Checked state */
+
 input:checked + .switch {
   background-color: #4caf50;
 }
