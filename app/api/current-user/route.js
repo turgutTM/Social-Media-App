@@ -33,7 +33,7 @@ export const GET = async (request) => {
       });
     }
 
-    // Remove sensitive data from the user object
+  
     const { password, ...userWithoutPassword } = user._doc;
 
     return new NextResponse(JSON.stringify(userWithoutPassword), {

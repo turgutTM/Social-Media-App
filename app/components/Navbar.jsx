@@ -5,6 +5,9 @@ import { BiLogOut } from "react-icons/bi";
 import { MdOutlineNightlight } from "react-icons/md";
 import { GoSun } from "react-icons/go";
 import { LuUser2 } from "react-icons/lu";
+import { IoHomeOutline } from "react-icons/io5";
+import { LiaUserFriendsSolid } from "react-icons/lia";
+import { AiOutlineHistory } from "react-icons/ai";
 import { RiNotification2Line, RiMore2Fill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
@@ -210,6 +213,7 @@ const Navbar = () => {
           onClick={() => togglePath("/")}
           className="relative flex items-center gap-1.5 cursor-pointer"
         >
+          <IoHomeOutline />
           <Link href="/">
             <p className={`${currentPath === "/" ? "text-blue-500" : ""}`}>
               Homepage
@@ -224,6 +228,7 @@ const Navbar = () => {
           onClick={() => togglePath("/friendsPosts")}
           className="relative flex items-center gap-1.5 cursor-pointer"
         >
+          <LiaUserFriendsSolid />
           <Link href="/friendsPosts">
             <p
               className={`${
@@ -243,6 +248,7 @@ const Navbar = () => {
           onMouseLeave={() => setIsTooltipVisible(false)}
           className="relative flex items-center gap-1.5 cursor-pointer "
         >
+          <AiOutlineHistory />
           <p>Stories</p>
 
           {isTooltipVisible && (
